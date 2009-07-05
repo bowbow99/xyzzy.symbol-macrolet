@@ -1,11 +1,14 @@
-;;;; -*- mode: lisp -*-
+;;;; -*- mode: lisp; package: lisp -*-
 ;;;;
 ;;;; symbol-macrolet --- common-lisp's symbol-macrolet for xyzzy-lisp.
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-07-06 04:15:57
+;;;; Updated: 2009-07-06 04:33:45
 ;;;;
+
+(in-package "lisp")
+(export '(symbol-macrolet))
 
 (defmacro symbol-macrolet (defs &body body)
   (labels ((rplatom (old new forms)
