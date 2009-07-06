@@ -1,0 +1,18 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: shadowing by let
+desc: symbol-macrolet must leave inner let-form as-is. so, symbols defined in inner let form doesn't affected by symbol-macrolet.
+type: :task
+component: symbol-macrolet
+release: "0.1"
+reporter: bowbow99 <bowbow99@gmail.com>
+status: :unstarted
+disposition: 
+creation_time: 2009-07-06 09:30:05.005750 Z
+references: []
+
+id: 5825c460856a63ae7fcb8e7b8838cb9c15cc7e1b
+log_events: 
+- - 2009-07-06 09:30:06.063750 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - created
+  - ""

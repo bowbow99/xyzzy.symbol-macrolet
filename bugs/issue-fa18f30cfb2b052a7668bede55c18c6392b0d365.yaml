@@ -1,0 +1,18 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: signal error on (declare (special ...)).
+desc: symbol-macrolet must signal an error when (declare (special ...)) contains one of the symbol being defined by symbol-macrolet.
+type: :task
+component: symbol-macrolet
+release: "0.1"
+reporter: bowbow99 <bowbow99@gmail.com>
+status: :unstarted
+disposition: 
+creation_time: 2009-07-06 09:25:21.626375 Z
+references: []
+
+id: fa18f30cfb2b052a7668bede55c18c6392b0d365
+log_events: 
+- - 2009-07-06 09:25:23.536375 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - created
+  - ""
