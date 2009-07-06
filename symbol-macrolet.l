@@ -4,7 +4,7 @@
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-07-06 04:33:45
+;;;; Updated: 2009-07-06 16:25:12
 ;;;;
 
 (in-package "lisp")
@@ -12,9 +12,10 @@
 
 (defmacro symbol-macrolet (defs &body body)
   (labels ((rplatom (old new forms)
-             (cond ((null forms) nil)
-                   ((atom forms)
-                    (if (eq forms old) new forms))
+             (cond ((eq forms old) new)
+                   ((eq forms 'setq) 'setf)
+                   ((eq forms 'psetq) 'psetf)
+                   ((atom forms) forms)
                    (t (cons (rplatom old new (car forms))
                             (rplatom old new (cdr forms)))))))
     `(progn ,@(dolist (def (reverse defs) body)
