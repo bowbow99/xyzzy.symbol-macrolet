@@ -5,7 +5,7 @@ type: :task
 component: symbol-macrolet
 release: "0.1"
 reporter: bowbow99 <bowbow99@gmail.com>
-status: :unstarted
+status: :in_progress
 disposition: 
 creation_time: 2009-07-06 09:21:26.775000 Z
 references: []
@@ -20,3 +20,7 @@ log_events:
   - bowbow99 <bowbow99@gmail.com>
   - commented
   - it also requires implement setf to values-form, which isn't supported by bare xyzzy-lisp.
+- - 2009-07-10 15:40:53.429250 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - changed status from unstarted to in_progress
+  - with help of setf-values :)
