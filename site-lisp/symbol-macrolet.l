@@ -4,8 +4,10 @@
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-07-11 01:07:37
+;;;; Updated: 2009-07-11 01:14:38
 ;;;;
+
+(require "setf-values")
 
 (in-package "lisp")
 (export '(symbol-macrolet))
@@ -16,8 +18,11 @@
                    ((eq form 'setq) 'setf)
                    ((eq form 'psetq) 'psetf)
                    ((atom form) form)
+                   ((eq (car form) 'multiple-value-setq))
+                    `(setf (values ,@(modify old new (cadr form)))
+                           ,@(cddr form)))
                    (t (cons (modify old new (car form))
-                            (modify old new (cdr form)))))))
+                            (modify old new (cdr form))))))
     `(progn ,@(dolist (def (reverse defs) body)
                 (setf body (modify (car def) (cadr def) body))))))
 
