@@ -5,8 +5,8 @@ type: :task
 component: symbol-macrolet
 release: "0.1"
 reporter: bowbow99 <bowbow99@gmail.com>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2009-07-06 09:30:05.005750 Z
 references: []
 
@@ -16,3 +16,25 @@ log_events:
   - bowbow99 <bowbow99@gmail.com>
   - created
   - ""
+- - 2009-07-10 19:56:57.623875 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - changed status from unstarted to in_progress
+  - ""
+- - 2009-07-10 19:57:49.746750 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - commented
+  - |-
+    its not only shadowed by let, but any other form which create
+    it's own lexical scope.
+- - 2009-07-10 20:59:53.636500 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - changed status from in_progress to paused
+  - i need to learn about common-lisp's symbol-macrolet more.
+- - 2009-07-10 23:29:29.673125 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - changed status from paused to in_progress
+  - ""
+- - 2009-07-11 00:55:26.427000 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - closed with disposition fixed
+  - i bereave i did.
