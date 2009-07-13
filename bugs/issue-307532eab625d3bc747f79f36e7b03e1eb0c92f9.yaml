@@ -1,0 +1,33 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: local-macros
+desc: handle local macros around (inside and outside of) symbol-macrolet.
+type: :feature
+component: symbol-macrolet
+release: "0.1"
+reporter: bowbow99 <bowbow99@gmail.com>
+status: :closed
+disposition: :fixed
+creation_time: 2009-07-13 20:39:00.546750 Z
+references: []
+
+id: 307532eab625d3bc747f79f36e7b03e1eb0c92f9
+log_events: 
+- - 2009-07-13 20:39:11.245750 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - created
+  - this is complicated.
+- - 2009-07-13 20:39:59.733625 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - changed status from unstarted to in_progress
+  - ""
+- - 2009-07-13 23:04:32.760875 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - commented
+  - |-
+    - expand symbol-macros in definition of local-macros
+    - expand both local and global macros calls in macrolet's body forms
+    - expand symbol-macros in expansion of macrolet's body forms
+- - 2009-07-13 23:05:23.617000 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - closed with disposition fixed
+  - looks working properly.
