@@ -4,7 +4,7 @@
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-07-14 08:07:29
+;;;; Updated: 2009-07-14 09:02:47
 ;;;;
 
 (require "setf-values")
@@ -71,9 +71,10 @@
         (function
          `(function ,(expand-lambda (cadr form) sym/macros env))) 
         (lambda (pass 'expand-lambda))
+        ((throw catch return-from go block)
+         `(,(car form) ,(cadr form) ,@(mapcar #'rec (cddr form))))
         (t (list* (car form)
                   (mapcar #'rec (cdr form))))))))
-
 
 (defun expand-macrolet (form sym/macros &optional env defs)
   (labels ((expand-def (form)
