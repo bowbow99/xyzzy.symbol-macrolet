@@ -4,7 +4,7 @@
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-07-14 09:02:47
+;;;; Updated: 2009-07-14 09:19:50
 ;;;;
 
 (require "setf-values")
@@ -73,8 +73,16 @@
         (lambda (pass 'expand-lambda))
         ((throw catch return-from go block)
          `(,(car form) ,(cadr form) ,@(mapcar #'rec (cddr form))))
+        (tagbody (pass 'expand-tagbody))
         (t (list* (car form)
                   (mapcar #'rec (cdr form))))))))
+
+(defun expand-tagbody (form sym/macros &optional env defs)
+  `(tagbody
+     ,@(mapcar (lambda (form)
+                 (if (symbolp form) form
+                   (expand-form form sym/macros env defs)))
+         (cdr form))))
 
 (defun expand-macrolet (form sym/macros &optional env defs)
   (labels ((expand-def (form)
@@ -110,13 +118,16 @@
                      (list (car letting)
                            (expand-form (cadr letting) sym/macros env defs)))
              (cadr form))
-       ,@(expand-form (cddr form) (shadowing sym/macros letted)))))
+       ,@(mapcar (lambda (form)
+                   (expand-form form (shadowing sym/macros letted) env defs))
+           (cddr form)))))
 
 (defun expand-let* (form sym/macros &optional env defs)
   (let ((letted nil))
     (labels ((expand-with-shadow (form)
                (prog1
-                   (expand-form (cadr form) (shadowing sym/macros letted) env defs)
+                   (expand-form (cadr form) (shadowing sym/macros letted)
+                                env defs)
                  (push (car form) letted))))
     `(let* ,(mapcar (lambda (pair)
                       (list (car pair)
@@ -131,7 +142,7 @@
   (let ((vars (cadr form))
         (body (cddr form)))
     `(lambda ,vars
-       ,@(expand-form body (shadowing sym/macros vars)))))
+       ,@(expand-form body (shadowing sym/macros vars) env defs))))
 
 
 (defun expand-flet (form sym/macros &optional env defs)
@@ -140,7 +151,8 @@
                (list* (car def) ;name
                       (cadr def) ;lambda-list
                       (mapcar (lambda (form)
-                                (expand-form form (shadowing sym/macros (cadr def)) env defs))
+                                (expand-form form (shadowing sym/macros (cadr def))
+                                             env defs))
                         (cddr def))))
        (cadr form))
     ,@(mapcar (lambda (form)
