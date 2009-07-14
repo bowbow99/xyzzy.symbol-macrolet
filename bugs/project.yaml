@@ -14,3 +14,12 @@ releases:
     - bowbow99 <bowbow99@gmail.com>
     - created
     - ""
+- !ditz.rubyforge.org,2008-03-06/release 
+  name: "0.01"
+  status: :unreleased
+  release_time: 
+  log_events: 
+  - - 2009-07-14 05:19:30.070250 Z
+    - bowbow99 <bowbow99@gmail.com>
+    - created
+    - ""

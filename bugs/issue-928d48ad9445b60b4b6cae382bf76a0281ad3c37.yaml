@@ -1,0 +1,30 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: ignore 'tags'
+desc: tags or labels must be ignored from symbol-macrolet's expansion process.
+type: :feature
+component: symbol-macrolet
+release: "0.1"
+reporter: bowbow99 <bowbow99@gmail.com>
+status: :closed
+disposition: :fixed
+creation_time: 2009-07-13 23:56:48.640250 Z
+references: []
+
+id: 928d48ad9445b60b4b6cae382bf76a0281ad3c37
+log_events: 
+- - 2009-07-13 23:56:49.718250 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - created
+  - ""
+- - 2009-07-14 00:01:17.394250 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - changed status from unstarted to in_progress
+  - ""
+- - 2009-07-14 00:04:24.464500 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - commented
+  - ignoring first element was too easy :)
+- - 2009-07-14 00:21:26.283420 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - closed with disposition fixed
+  - ""

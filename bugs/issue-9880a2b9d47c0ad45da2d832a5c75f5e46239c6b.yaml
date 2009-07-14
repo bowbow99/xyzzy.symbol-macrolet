@@ -1,0 +1,22 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: write README
+desc: ""
+type: :task
+component: symbol-macrolet
+release: "0.01"
+reporter: bowbow99 <bowbow99@gmail.com>
+status: :in_progress
+disposition: 
+creation_time: 2009-07-14 06:09:00.534250 Z
+references: []
+
+id: 9880a2b9d47c0ad45da2d832a5c75f5e46239c6b
+log_events: 
+- - 2009-07-14 06:09:01.765250 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - created
+  - ""
+- - 2009-07-14 06:09:15.706250 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - changed status from unstarted to in_progress
+  - ""
