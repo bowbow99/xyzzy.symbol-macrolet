@@ -20,7 +20,7 @@ NOTE: ここは主に symbol-macrolet を使って拡張/lisp を書く人向け
     (require "symbol-macrolet")
 
 
-symbol-macrolet: (_symbol_ _expansion_)* _declaration*_ _form*_
+symbol-macrolet: (_symbol_ _expansion_)\* _declaration\*_ _form\*_
 -----------------------------------------------------------------
 
 - _symbol_: [symbol] symbol-macro の名前
