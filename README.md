@@ -1,35 +1,39 @@
-OVERVIEW
+Overview
 ============
 common-lisp の symbol-macrolet です。
 
-INSTALL
+Install
 ==========
 NOTE: NIY: NetInstaller からインストールしたなら以下は不要です。
+
 1. `*load-path*` のどっかに symbol-macrolet.l を置きます
 2. OPTIONAL: byte-compile します
 
 「XXXって拡張をインストールしたら symbol-macrolet が必要とか言われた！！」という人はここまでやれば万事オッケーです。
 
 
-USAGE (for developer)
+Usage (for developer)
 ======================
 NOTE: ここは主に symbol-macrolet を使って拡張/lisp を書く人向け
 
 まず require します。
     (require "symbol-macrolet")
 
-symbol-macrolet: (_symbol_ _expansion_)* _declaration*_ _form*_
+
+`symbol-macrolet: (_symbol_ _expansion_)* _declaration*_ _form*_`
+
 - _symbol_: [symbol] symbol-macro の名前
 - _expansion_: [form] symbol-macro の展開形
 - _declaration_: (declare ...)
    - xyzzy で使える declare は special のみですが、special で symbol-macro の名前を指定するとエラーを吐くので、つまり使い道はありません。
 - _form_: [form]
+
 _form*_ 内で **symbol-macro** として指定された _symbol_ が（変数として）参照される部分が、_expansion_ に置換された後、評価されます。
 - 参考:[CLHS: Special Operator SYMBOL-MACROLET](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_symbol.htm#symbol-macrolet)
 
 EXAMPLE
-==========
-    (setq *list* '(1 2 3 4))
+---------
+(setq *list* '(1 2 3 4))
     => (1 2 3 4)
     
     (symbol-macrolet ((first (first *list*))
@@ -64,4 +68,8 @@ about package
 symbol-macrolet.l は macro symbol-macrolet を lisp package から export しているので、ほとんどの場合は気にする必要ないです。
 
 それとは別に、いくつか関数を定義したりするのに "symbol-macrolet" という package を作っていますが、これは macro symbol-macrolet から symbol-macrolet::expand-form みたいに指定して使ってるだけで、普通は触る必要はないです。
+
+Performance
+--------------
+symbol-macrolet は macro 展開時になんかごちゃごちゃやってるので、symbol-macrolet を使ったコードは byte-compile 推奨です。
 
