@@ -1,10 +1,10 @@
 ;;;; -*- mode: lisp; package: lisp -*-
 ;;;;
-;;;; symbol-macrolet --- common-lisp's symbol-macrolet for xyzzy-lisp.
+;;;; symbol-macrolet.l --- common-lisp's symbol-macrolet for xyzzy-lisp.
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-07-14 09:19:50
+;;;; Updated: 2009-07-14 09:23:48
 ;;;;
 
 (require "setf-values")
@@ -160,7 +160,6 @@
         (cddr form))))
 
 
-
 (in-package "lisp")
 (export '(symbol-macrolet))
 
@@ -174,12 +173,14 @@
                        (mapcar #'car defs))))
       (when constants
         (error "constant variables cannot be a symbol macro:~{ ~S~}" constants)))
-    `(progn ,@(mapcar (lambda (form)
-                        (symbol-macrolet::expand-form form defs env))
-                forms))))
+    `(symbol-macrolet::progn?
+      ,@(mapcar (lambda (form)
+                  (symbol-macrolet::expand-form form defs env))
+          forms))))
 
 #+xyzzy
 (setf (get 'symbol-macrolet 'ed:lisp-indent-hook) 1
       (get 'symbol-macrolet 'ed::lisp-indent-flet) t)
 
-;;;; symbol-macrolet ends here
+(provide "symbol-macrolet")
+;;;; symbol-macrolet.l ends here
