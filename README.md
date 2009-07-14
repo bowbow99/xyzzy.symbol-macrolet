@@ -20,7 +20,8 @@ NOTE: ここは主に symbol-macrolet を使って拡張/lisp を書く人向け
     (require "symbol-macrolet")
 
 
-`symbol-macrolet: (_symbol_ _expansion_)* _declaration*_ _form*_`
+symbol-macrolet: (_symbol_ _expansion_)* _declaration*_ _form*_
+-----------------------------------------------------------------
 
 - _symbol_: [symbol] symbol-macro の名前
 - _expansion_: [form] symbol-macro の展開形
@@ -29,6 +30,7 @@ NOTE: ここは主に symbol-macrolet を使って拡張/lisp を書く人向け
 - _form_: [form]
 
 _form*_ 内で **symbol-macro** として指定された _symbol_ が（変数として）参照される部分が、_expansion_ に置換された後、評価されます。
+
 - 参考:[CLHS: Special Operator SYMBOL-MACROLET](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_symbol.htm#symbol-macrolet)
 
 EXAMPLE
