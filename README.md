@@ -1,32 +1,32 @@
 OVERVIEW
 ============
-common-lisp ‚Ì symbol-macrolet ‚Å‚·B
+common-lisp ã® symbol-macrolet ã§ã™ã€‚
 
 INSTALL
 ==========
-NOTE: NIY: NetInstaller ‚©‚çƒCƒ“ƒXƒg[ƒ‹‚µ‚½‚È‚çˆÈ‰º‚Í•s—v‚Å‚·B
-1. `*load-path*` ‚Ì‚Ç‚Á‚©‚É symbol-macrolet.l ‚ğ’u‚«‚Ü‚·
-2. OPTIONAL: byte-compile ‚µ‚Ü‚·
+NOTE: NIY: NetInstaller ã‹ã‚‰ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ãŸãªã‚‰ä»¥ä¸‹ã¯ä¸è¦ã§ã™ã€‚
+1. `*load-path*` ã®ã©ã£ã‹ã« symbol-macrolet.l ã‚’ç½®ãã¾ã™
+2. OPTIONAL: byte-compile ã—ã¾ã™
 
-uXXX‚Á‚ÄŠg’£‚ğƒCƒ“ƒXƒg[ƒ‹‚µ‚½‚ç symbol-macrolet ‚ª•K—v‚Æ‚©Œ¾‚í‚ê‚½IIv‚Æ‚¢‚¤l‚Í‚±‚±‚Ü‚Å‚â‚ê‚Î–œ–ƒIƒbƒP[‚Å‚·B
+ã€ŒXXXã£ã¦æ‹¡å¼µã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ãŸã‚‰ symbol-macrolet ãŒå¿…è¦ã¨ã‹è¨€ã‚ã‚ŒãŸï¼ï¼ã€ã¨ã„ã†äººã¯ã“ã“ã¾ã§ã‚„ã‚Œã°ä¸‡äº‹ã‚ªãƒƒã‚±ãƒ¼ã§ã™ã€‚
 
 
 USAGE (for developer)
 ======================
-NOTE: ‚±‚±‚Íå‚É symbol-macrolet ‚ğg‚Á‚ÄŠg’£/lisp ‚ğ‘‚­lŒü‚¯
+NOTE: ã“ã“ã¯ä¸»ã« symbol-macrolet ã‚’ä½¿ã£ã¦æ‹¡å¼µ/lisp ã‚’æ›¸ãäººå‘ã‘
 
-‚Ü‚¸ require ‚µ‚Ü‚·B
+ã¾ãš require ã—ã¾ã™ã€‚
     (require "symbol-macrolet")
 
 symbol-macrolet: (_symbol_ _expansion_)* _declaration*_ _form*_
-- _symbol_: [symbol] symbol-macro ‚Ì–¼‘O
-- _expansion_: [form] symbol-macro ‚Ì“WŠJŒ`
+- _symbol_: [symbol] symbol-macro ã®åå‰
+- _expansion_: [form] symbol-macro ã®å±•é–‹å½¢
 - _declaration_: (declare ...)
-   - xyzzy ‚Åg‚¦‚é declare ‚Í special ‚Ì‚İ‚Å‚·‚ªAspecial ‚Å symbol-macro ‚Ì–¼‘O‚ğ
-     w’è‚·‚é‚ÆƒGƒ‰[‚ğ“f‚­‚Ì‚ÅA‚Â‚Ü‚èg‚¢“¹‚Í‚ ‚è‚Ü‚¹‚ñB
+   - xyzzy ã§ä½¿ãˆã‚‹ declare ã¯ special ã®ã¿ã§ã™ãŒã€special ã§ symbol-macro ã®åå‰ã‚’
+     æŒ‡å®šã™ã‚‹ã¨ã‚¨ãƒ©ãƒ¼ã‚’åãã®ã§ã€ã¤ã¾ã‚Šä½¿ã„é“ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚
 - _form_: [form]
-_form*_ “à‚Å **symbol-macro** ‚Æ‚µ‚Äw’è‚³‚ê‚½ _symbol_ ‚ªi•Ï”‚Æ‚µ‚ÄjQÆ‚³‚ê‚é•”•ª‚ªA_expansion_ ‚É’uŠ·‚³‚ê‚½ŒãA•]‰¿‚³‚ê‚Ü‚·B
-- Ql:[CLHS: Special Operator SYMBOL-MACROLET](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_symbol.htm#symbol-macrolet)
+_form*_ å†…ã§ **symbol-macro** ã¨ã—ã¦æŒ‡å®šã•ã‚ŒãŸ _symbol_ ãŒï¼ˆå¤‰æ•°ã¨ã—ã¦ï¼‰å‚ç…§ã•ã‚Œã‚‹éƒ¨åˆ†ãŒã€_expansion_ ã«ç½®æ›ã•ã‚ŒãŸå¾Œã€è©•ä¾¡ã•ã‚Œã¾ã™ã€‚
+- å‚è€ƒ:[CLHS: Special Operator SYMBOL-MACROLET](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_symbol.htm#symbol-macrolet)
 
 EXAMPLE
 ==========
@@ -60,10 +60,9 @@ EXAMPLE
     foo: 1
     => nil
 
-
 about package
 --------------
-symbol-macrolet.l ‚Í macro symbol-macrolet ‚ğ lisp package ‚©‚ç export ‚µ‚Ä‚¢‚é‚Ì‚ÅA‚Ù‚Æ‚ñ‚Ç‚Ìê‡‚Í‹C‚É‚·‚é•K—v‚È‚¢‚Å‚·B
+symbol-macrolet.l ã¯ macro symbol-macrolet ã‚’ lisp package ã‹ã‚‰ export ã—ã¦ã„ã‚‹ã®ã§ã€ã»ã¨ã‚“ã©ã®å ´åˆã¯æ°—ã«ã™ã‚‹å¿…è¦ãªã„ã§ã™ã€‚
 
-‚»‚ê‚Æ‚Í•Ê‚ÉA‚¢‚­‚Â‚©ŠÖ”‚ğ’è‹`‚µ‚½‚è‚·‚é‚Ì‚É "symbol-macrolet" ‚Æ‚¢‚¤ package ‚ğì‚Á‚Ä‚¢‚Ü‚·‚ªA‚±‚ê‚Í macro symbol-macrolet ‚©‚ç symbol-macrolet::expand-form ‚İ‚½‚¢‚Éw’è‚µ‚Äg‚Á‚Ä‚é‚¾‚¯‚ÅA•’Ê‚ÍG‚é•K—v‚Í‚È‚¢‚Å‚·B
+ãã‚Œã¨ã¯åˆ¥ã«ã€ã„ãã¤ã‹é–¢æ•°ã‚’å®šç¾©ã—ãŸã‚Šã™ã‚‹ã®ã« "symbol-macrolet" ã¨ã„ã† package ã‚’ä½œã£ã¦ã„ã¾ã™ãŒã€ã“ã‚Œã¯ macro symbol-macrolet ã‹ã‚‰ symbol-macrolet::expand-form ã¿ãŸã„ã«æŒ‡å®šã—ã¦ä½¿ã£ã¦ã‚‹ã ã‘ã§ã€æ™®é€šã¯è§¦ã‚‹å¿…è¦ã¯ãªã„ã§ã™ã€‚
 
