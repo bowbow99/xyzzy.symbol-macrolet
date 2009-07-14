@@ -4,8 +4,9 @@
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-07-14 09:23:48
+;;;; Updated: 2009-07-14 13:41:57
 ;;;;
+;;;; 
 
 (require "setf-values")
 
@@ -14,6 +15,8 @@
     (:use "lisp")))
 
 (in-package "symbol-macrolet")
+
+(defconstant *version* "0.01.00")
 
 ;;;;
 ;;;; * utilities
