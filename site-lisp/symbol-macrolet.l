@@ -4,11 +4,11 @@
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-07-17 04:12:28
+;;;; Updated: 2009-08-10 20:10:47
 ;;;;
 ;;;; License: The MIT License (http://www.opensource.org/licenses/mit-license.php)
 #|
-Copyright (c) 2009 Tohru Kitamura
+Copyright (c) 2009 bowbow99
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ THE SOFTWARE.
 
 (in-package "symbol-macrolet")
 
-(defconstant *version* "0.01.00")
+(defconstant *version* "0.01.01")
 
 ;;;;
 ;;;; * utilities
@@ -139,8 +139,11 @@ THE SOFTWARE.
                             (car letting)))
                   (cadr form))))
     `(let ,(mapcar (lambda (letting)
-                     (list (car letting)
-                           (expand-form (cadr letting) sym/macros env defs)))
+                     (cond ((consp letting)
+                            (list (car letting)
+                                  (expand-form (cadr letting) sym/macros env defs)))
+                           ((symbolp letting) letting)
+                           (t (error "不正な let フォームです:~%~S" form))))
              (cadr form))
        ,@(mapcar (lambda (form)
                    (expand-form form (shadowing sym/macros letted) env defs))
@@ -153,14 +156,17 @@ THE SOFTWARE.
                    (expand-form (cadr form) (shadowing sym/macros letted)
                                 env defs)
                  (push (car form) letted))))
-    `(let* ,(mapcar (lambda (pair)
-                      (list (car pair)
-                            (expand-with-shadow pair)))
-              (cadr form))
-       ,@(let ((shadowed (shadowing sym/macros letted)))
-           (mapcar (lambda (form)
-                     (expand-form form shadowed env defs))
-             (cddr form)))))))
+      `(let* ,(mapcar (lambda (pair)
+                        (cond ((consp pair)
+                                 (list (car pair)
+                                       (expand-with-shadow pair)))
+                              ((symbolp pair) pair)
+                              (t (error "不正な let* フォームです: ~S" form))))
+                (cadr form))
+         ,@(let ((shadowed (shadowing sym/macros letted)))
+             (mapcar (lambda (form)
+                       (expand-form form shadowed env defs))
+               (cddr form)))))))
 
 (defun expand-lambda (form sym/macros &optional env defs)
   (let ((vars (cadr form))
