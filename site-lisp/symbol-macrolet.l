@@ -4,7 +4,7 @@
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-08-10 20:10:47
+;;;; Updated: 2009-08-14 01:25:06
 ;;;;
 ;;;; License: The MIT License (http://www.opensource.org/licenses/mit-license.php)
 #|
@@ -93,7 +93,9 @@ THE SOFTWARE.
         (macrolet (pass 'expand-macrolet))
         ((labels flet) (pass 'expand-flet))
         (function
-         `(function ,(expand-lambda (cadr form) sym/macros env))) 
+         (if (consp (cadr form))
+             `(function ,(expand-lambda (cadr form) sym/macros env))
+           form)) 
         (lambda (pass 'expand-lambda))
         ((throw catch return-from go block)
          `(,(car form) ,(cadr form) ,@(mapcar #'rec (cddr form))))

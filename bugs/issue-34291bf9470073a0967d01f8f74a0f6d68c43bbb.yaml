@@ -1,0 +1,22 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: "expand #'function-name"
+desc: "trying to expand #'function-name causes error."
+type: :bugfix
+component: symbol-macrolet
+release: "0.01"
+reporter: bowbow99 <bowbow99@gmail.com>
+status: :closed
+disposition: :fixed
+creation_time: 2009-08-13 16:19:23.317750 Z
+references: []
+
+id: 34291bf9470073a0967d01f8f74a0f6d68c43bbb
+log_events: 
+- - 2009-08-13 16:19:25.615750 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - created
+  - ""
+- - 2009-08-13 16:25:39.452875 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - closed with disposition fixed
+  - ""
