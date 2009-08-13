@@ -1,0 +1,30 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: body of lambda form
+desc: doesn't get expanded sometimes...
+type: :bugfix
+component: symbol-macrolet
+release: "0.01"
+reporter: bowbow99 <bowbow99@gmail.com>
+status: :closed
+disposition: :fixed
+creation_time: 2009-08-13 17:34:23.499000 Z
+references: []
+
+id: ec8e0ffff03864da9ac92106e28c9f635af03daa
+log_events: 
+- - 2009-08-13 17:34:24.330000 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - created
+  - ""
+- - 2009-08-13 17:39:43.961000 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - commented
+  - |-
+    expand-lambda passing the body as form to expand-form.
+    expand-form treat it as a form, not forms. so he treat first form as
+    operater instead of a form.
+    so he gonna return first form as-is (without expand it's elements).
+- - 2009-08-13 17:43:22.173000 Z
+  - bowbow99 <bowbow99@gmail.com>
+  - closed with disposition fixed
+  - ""

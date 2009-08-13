@@ -4,7 +4,7 @@
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-08-14 01:25:06
+;;;; Updated: 2009-08-14 02:40:07
 ;;;;
 ;;;; License: The MIT License (http://www.opensource.org/licenses/mit-license.php)
 #|
@@ -73,7 +73,9 @@ THE SOFTWARE.
 
 (defun expand-atom (form sym/macros &optional env defs)
   (let ((found (find form sym/macros :key #'car)))
-    (if found (cadr found) form)))
+    (if found
+        (identity (cadr found))
+      (identity form))))
 
 (defun expand-form (form sym/macros &optional env defs)
   (setq form (macroexpand* form :env env :defs defs))
@@ -95,7 +97,7 @@ THE SOFTWARE.
         (function
          (if (consp (cadr form))
              `(function ,(expand-lambda (cadr form) sym/macros env))
-           form)) 
+           form))
         (lambda (pass 'expand-lambda))
         ((throw catch return-from go block)
          `(,(car form) ,(cadr form) ,@(mapcar #'rec (cddr form))))
@@ -174,7 +176,9 @@ THE SOFTWARE.
   (let ((vars (cadr form))
         (body (cddr form)))
     `(lambda ,vars
-       ,@(expand-form body (shadowing sym/macros vars) env defs))))
+       ,@(mapcar (lambda (form)
+                   (expand-form form (shadowing sym/macros vars) env defs))
+           body))))
 
 
 (defun expand-flet (form sym/macros &optional env defs)
@@ -205,6 +209,7 @@ THE SOFTWARE.
                        (mapcar #'car defs))))
       (when constants
         (error "constant variables cannot be a symbol macro:~{ ~S~}" constants)))
+    ;(ed::msgbox "~{~S~%~}" defs)
     `(symbol-macrolet::progn?
       ,@(mapcar (lambda (form)
                   (symbol-macrolet::expand-form form defs env))
