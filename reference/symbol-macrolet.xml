@@ -1,33 +1,48 @@
-
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE book [
+<!ELEMENT book (chapter*)>
+<!ELEMENT chapter (title,type,arguments?,package?,description,seealso*,link*,section,file?)>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT arguments (#PCDATA)>
+<!ELEMENT package (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT seealso (#PCDATA)>
+<!ELEMENT link (#PCDATA)>
+<!ELEMENT section (#PCDATA)>
+<!ELEMENT file (#PCDATA)>
+]>
 <!--
-  ‚Ö‚È‚¿‚å‚±ƒŠƒtƒ@ƒŒƒ“ƒX‚Æ‡‚í‚¹‚ÄAinfo-modoki-mode ‚Æ‚©‚ÅŽg‚¦‚éƒŠƒtƒ@ƒŒƒ“ƒX
-  ‚ðì‚é•û–@:
+  ã¸ãªã¡ã‚‡ã“ãƒªãƒ•ã‚¡ãƒ¬ãƒ³ã‚¹ã¨åˆã‚ã›ã¦ã€info-modoki-mode ã¨ã‹ã§ä½¿ãˆã‚‹ãƒªãƒ•ã‚¡ãƒ¬ãƒ³ã‚¹
+  ã‚’ä½œã‚‹æ–¹æ³•:
   
-  •K—v‚È‚à‚Ì
+  å¿…è¦ãªã‚‚ã®
   - xy-reference
   - reference.xml
   
-  ;;; *scratch* ‚Æ‚©‚Å
+  ;;; *scratch* ã¨ã‹ã§
   (require :xy-reference)
   (xy-refernec:2txt)
   
-  ‚·‚é‚Æ ${XYZZY}/etc/reference.txt ‚ª¶¬‚³‚ê‚é‚Ì‚ÅAinfo-modoki-mode ‚Ì
-  imm-refer ‚Å "symbol-macrolet" ‚ªŒ©‚ê‚é‚æ‚¤‚É‚È‚é‚Í‚¸B
+  ã™ã‚‹ã¨ ${XYZZY}/etc/reference.txt ãŒç”Ÿæˆã•ã‚Œã‚‹ã®ã§ã€info-modoki-mode ã®
+  imm-refer ã§ "symbol-macrolet" ãŒè¦‹ã‚Œã‚‹ã‚ˆã†ã«ãªã‚‹ã¯ãšã€‚
   -->
+<book>
+
 <chapter>
 <title>symbol-macrolet</title>
 <type>Macro</type>
 <arguments>symbol-macrolet ((SYMBOL EXPANTION)*) FORM*</arguments>
 <package>lisp</package>
 <description>
-FORM* “à‚ÉŒ»‚ê‚é•Ï”‚Æ‚µ‚ÄŽQÆ‚³‚ê‚é SYMBOL ‚ð EXPANTION ‚É“WŠJ‚µ‚Ä FORM*
-‚ð•]‰¿‚µ‚Ü‚·B
+FORM* å†…ã«ç¾ã‚Œã‚‹å¤‰æ•°ã¨ã—ã¦å‚ç…§ã•ã‚Œã‚‹ SYMBOL ã‚’ EXPANTION ã«å±•é–‹ã—ã¦ FORM*
+ã‚’è©•ä¾¡ã—ã¾ã™ã€‚
 
-ˆø”:
-  SYMBOL    “WŠJ‚³‚ê‚éƒVƒ“ƒ{ƒ‹
-  EXPANTION “WŠJŒã‚ÌŽ®
+å¼•æ•°:
+  SYMBOL    å±•é–‹ã•ã‚Œã‚‹ã‚·ãƒ³ãƒœãƒ«
+  EXPANTION å±•é–‹å¾Œã®å¼
 
-Žg—p—á:
+ä½¿ç”¨ä¾‹:
   (setq list '(1 2 3))
   =&gt; (1 2 3)
   
@@ -38,16 +53,16 @@ FORM* “à‚ÉŒ»‚ê‚é•Ï”‚Æ‚µ‚ÄŽQÆ‚³‚ê‚é SYMBOL ‚ð EXPANTION ‚É“WŠJ‚µ‚Ä FORM*
   ;; (+ (first list) (second list) (third list))
   =&gt; 6
 
-ƒVƒ“ƒ{ƒ‹ƒ}ƒNƒ‚ª let ‚È‚Ç‚É‚æ‚Á‚Ä•Ê‚Ì‘©”›‚ðŽ‚Â‚ÆA‚»‚ÌƒVƒ“ƒ{ƒ‹‚Í“WŠJ‚³‚ê
-‚È‚­‚È‚è‚Ü‚·B
+ã‚·ãƒ³ãƒœãƒ«ãƒžã‚¯ãƒ­ãŒ let ãªã©ã«ã‚ˆã£ã¦åˆ¥ã®æŸç¸›ã‚’æŒã¤ã¨ã€ãã®ã‚·ãƒ³ãƒœãƒ«ã¯å±•é–‹ã•ã‚Œ
+ãªããªã‚Šã¾ã™ã€‚
 
   (symbol-macrolet ((x 'foo))
     (list x (let ((x 'bar)) x)))
   ;; (list 'foo (let ((x 'bar)) x))
   =&gt; (foo bar)
 
-ƒVƒ“ƒ{ƒ‹ƒ}ƒNƒ‚É‘Î‚µ‚Ä setq ‚È‚Ç‚ÌƒVƒ“ƒ{ƒ‹‚ð’l‚É‘©”›‚·‚éiƒVƒ“ƒ{ƒ‹‚É’l‚ð
-‘ã“ü‚·‚éjŽ®‚ÍA“¯“™‚Ì setf ‚É’u‚«Š·‚¦‚ç‚ê‚Ü‚·B
+ã‚·ãƒ³ãƒœãƒ«ãƒžã‚¯ãƒ­ã«å¯¾ã—ã¦ setq ãªã©ã®ã‚·ãƒ³ãƒœãƒ«ã‚’å€¤ã«æŸç¸›ã™ã‚‹ï¼ˆã‚·ãƒ³ãƒœãƒ«ã«å€¤ã‚’
+ä»£å…¥ã™ã‚‹ï¼‰å¼ã¯ã€åŒç­‰ã® setf ã«ç½®ãæ›ãˆã‚‰ã‚Œã¾ã™ã€‚
 
   (setq list '(1 2 3))
   =&gt; (1 2 3)
@@ -66,7 +81,8 @@ FORM* “à‚ÉŒ»‚ê‚é•Ï”‚Æ‚µ‚ÄŽQÆ‚³‚ê‚é SYMBOL ‚ð EXPANTION ‚É“WŠJ‚µ‚Ä FORM*
 </description>
 <seealso></seealso>
 <link>[CLHS symbol-macrolet] http://www.lispworks.com/documentation/lw51/CLHS/Body/s_symbol.htm</link>
-<section>ƒ}ƒNƒ</section>
+<section>ãƒžã‚¯ãƒ­</section>
 <file>symbol-macrolet.l</file>
 </chapter>
 
+</book>
