@@ -35,7 +35,7 @@ THE SOFTWARE.
 
 (in-package :symbol-macrolet)
 
-(defconstant *version* "0.01.03")
+(defconstant *version* "0.01.04")
 
 ;;;;
 ;;;; * utilities
