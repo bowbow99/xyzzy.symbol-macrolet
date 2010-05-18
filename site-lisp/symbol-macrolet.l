@@ -3,8 +3,6 @@
 ;;;; symbol-macrolet.l --- common-lisp's symbol-macrolet for xyzzy-lisp.
 ;;;;
 ;;;; Author: bowbow99 <bowbow99@gmail.com>
-;;;; Created: 2009-07-06 03:26:10
-;;;; Updated: 2009-08-14 02:40:07
 ;;;;
 ;;;; License: The MIT License (http://www.opensource.org/licenses/mit-license.php)
 #|
@@ -29,15 +27,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 |#
 
-(require "setf-values")
+(require :setf-values)
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  (defpackage "symbol-macrolet"
-    (:use "lisp")))
+  (defpackage :symbol-macrolet
+    (:use :lisp)))
 
-(in-package "symbol-macrolet")
+(in-package :symbol-macrolet)
 
-(defconstant *version* "0.01.01")
+(defconstant *version* "0.01.03")
 
 ;;;;
 ;;;; * utilities
