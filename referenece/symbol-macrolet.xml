@@ -1,3 +1,18 @@
+<!--
+  へなちょこリファレンスと合わせて、info-modoki-mode とかで使えるリファレンス
+  を作る方法:
+  
+  必要なもの
+  - xy-reference
+  - reference.xml
+  
+  ;;; *scratch* とかで
+  (require :xy-reference)
+  (xy-refernec:2txt)
+  
+  すると ${XYZZY}/etc/reference.txt が生成されるので、info-modoki-mode の
+  imm-refer で "symbol-macrolet" が見れるようになるはず。
+  -->
 <chapter>
 <title>symbol-macrolet</title>
 <type>Macro</type>
