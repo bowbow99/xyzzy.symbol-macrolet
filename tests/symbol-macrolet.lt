@@ -1,0 +1,41 @@
+;;; -*- mode: lisp; package: test.symbol-macrolet -*-
+;;;
+;;; tests/symbol-macrolet.lt
+;;;
+
+(require "lisp-unit")
+
+(defpackage :test.symbol-macrolet
+  (:use :lisp :lisp-unit))
+
+(in-package :test.symbol-macrolet)
+
+(remove-all-tests :test.symbol-macrolet)
+
+(define-test symbol-macrolet
+  (assert-eql 12
+      (symbol-macrolet ((x 12)) x))
+  (assert-eql 12
+      (symbol-macrolet ((x (+ 8 4))) x))
+  (assert-equal '(1 2)
+      (let ((n 0))
+        (symbol-macrolet ((x (incf n))) (list x x))))
+  (let ((list '(1 2 3)))
+    (symbol-macrolet ((1st (first list))
+                      (2nd (second list))
+                      (3rd (third list)))
+      (assert-equal '(1 2 3)
+          (list 1st 2nd 3rd))
+      (assert-eql 10
+          (setf 1st 10))
+      (assert-eql 20
+          (setf 2nd 20))
+      (assert-eql 30
+          (setf 3rd 30))
+      (assert-equal '(10 20 30)
+          (list 1st 2nd 3rd))
+      (assert-equal '(10 20 30)
+          list))))
+
+
+;;; tests/symbol-macrolet.lt ends here.
