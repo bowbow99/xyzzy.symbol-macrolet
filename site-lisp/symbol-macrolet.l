@@ -54,6 +54,16 @@ THE SOFTWARE.
         (t (defs->env (cdr defs)
                       `(macrolet ,(car defs) ,form)))))
 
+
+(defun merge-env (env local-macro-defs)
+  "Return an environment object which contains everything in ENV plus
+local macros from LOCAL-MACRO-DEFS."
+  (evalhook (let ((env (gensym)))
+              `(macrolet ,local-macro-defs
+                 (macrolet ((,env (&environment ,env) ,env)) (,env))))
+            nil nil env))
+
+
 (defun macroexpand* (form &key defs env)
   "Returns expansion of <form> in gine <env> and local macro <defs>."
   (let ((global (macroexpand form))
