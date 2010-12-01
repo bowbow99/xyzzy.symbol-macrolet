@@ -184,20 +184,20 @@ local macros from LOCAL-MACRO-DEFS."
 (in-package "lisp")
 (export '(symbol-macrolet))
 
-(defmacro symbol-macrolet (defs &body forms &environment env)
+(defmacro symbol-macrolet (sym/macros &body forms &environment env)
   (multiple-value-bind (decl forms)
       (find-declaration forms)
     (let ((em (and decl (eql (caadr decl) 'special)
-                   (intersection (cdadr decl) (mapcar #'car defs)))))
+                   (intersection (cdadr decl) (mapcar #'car sym/macros)))))
       (when em (error "declaring symbol macros as special:~{ ~S~}" em)))
     (let ((constants (remove-if-not #'constantp
-                       (mapcar #'car defs))))
+                       (mapcar #'car sym/macros))))
       (when constants
         (error "constant variables cannot be a symbol macro:~{ ~S~}" constants)))
     ;(ed::msgbox "~{~S~%~}" defs)
     `(symbol-macrolet::progn?
       ,@(mapcar (lambda (form)
-                  (symbol-macrolet::expand-form form defs env))
+                  (symbol-macrolet::expand-form form sym/macros env))
           forms))))
 
 #+xyzzy
