@@ -66,6 +66,7 @@ local macros from LOCAL-MACRO-DEFS."
 
 (defun macroexpand* (form &key defs env)
   "Returns expansion of <form> in gine <env> and local macro <defs>."
+  (error "DEPLICATED")
   (let ((global (macroexpand form))
         (outer (macroexpand form env))
         (inner (macroexpand form (defs->env defs))))
@@ -86,7 +87,7 @@ local macros from LOCAL-MACRO-DEFS."
       (identity form))))
 
 (defun expand-form (form sym/macros &optional env defs)
-  (setq form (macroexpand* form :env env :defs defs))
+  (setq form (macroexpand form env))
   (labels ((rec (form)
              (expand-form form sym/macros env defs))
            (pass (fn)
