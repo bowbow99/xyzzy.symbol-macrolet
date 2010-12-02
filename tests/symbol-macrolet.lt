@@ -20,7 +20,7 @@
   (assert-equal '(1 2)
       (let ((n 0))
         (symbol-macrolet ((x (incf n))) (list x x))))
-  (let ((list '(1 2 3)))
+  (let ((list (list 1 2 3)))
     (symbol-macrolet ((1st (first list))
                       (2nd (second list))
                       (3rd (third list)))
