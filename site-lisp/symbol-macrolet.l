@@ -109,9 +109,10 @@ local macros from LOCAL-MACRO-DEFS."
                              (expand-form form sym/macros env))
                      (cddr form))))))
     (let ((env (merge-env env (cadr form))))
-      `(progn? ,@(mapcar (lambda (form)
-                           (expand-form form sym/macros env))
-                   (cddr form))))))
+      `(macrolet (,@(mapcar #'expand-def (cadr form)))
+         ,@(mapcar (lambda (form)
+                     (expand-form form sym/macros env))
+             (cddr form))))))
 
 (defun expand-mv-setq (form sym/macros &optional env)
   `(setf (values ,@(mapcar (lambda (sym)
