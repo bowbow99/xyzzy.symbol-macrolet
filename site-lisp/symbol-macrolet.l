@@ -44,7 +44,6 @@ THE SOFTWARE.
 (defmacro progn? (&body body)
   (if (> (length body) 1) `(progn ,@body) (car body)))
 
-
 (defun merge-env (env local-macro-defs)
   "Return an environment object which contains everything in ENV plus
 local macros from LOCAL-MACRO-DEFS."
@@ -58,11 +57,8 @@ local macros from LOCAL-MACRO-DEFS."
                (find (car sym/macro) shadowed))
     sym/macros))
 
-(defun expand-atom (form sym/macros &optional env)
-  (let ((found (find form sym/macros :key #'car)))
-    (if found
-        (identity (cadr found))
-      (identity form))))
+;;;;
+;;;; * Expand Forms
 
 (defun expand-form (form sym/macros &optional env)
   (setq form (macroexpand form env))
@@ -71,7 +67,7 @@ local macros from LOCAL-MACRO-DEFS."
            (pass (fn)
              (funcall fn form sym/macros env)))
     (if (atom form)
-        (expand-atom form sym/macros env)
+      (expand-atom form sym/macros env)
       (case (car form)
         (quote form)
         (setq `(setf ,@(mapcar #'rec (cdr form))))
@@ -83,7 +79,7 @@ local macros from LOCAL-MACRO-DEFS."
         ((labels flet) (pass 'expand-flet))
         (function
          (if (consp (cadr form))
-             `(function ,(expand-lambda (cadr form) sym/macros env))
+           `(function ,(expand-lambda (cadr form) sym/macros env))
            form))
         (lambda (pass 'expand-lambda))
         ((throw catch return-from go block)
@@ -91,6 +87,12 @@ local macros from LOCAL-MACRO-DEFS."
         (tagbody (pass 'expand-tagbody))
         (t (list* (car form)
                   (mapcar #'rec (cdr form))))))))
+
+(defun expand-atom (form sym/macros &optional env)
+  (let ((found (find form sym/macros :key #'car)))
+    (if found
+      (identity (cadr found))
+      (identity form))))
 
 (defun expand-tagbody (form sym/macros &optional env)
   `(tagbody
@@ -148,8 +150,8 @@ local macros from LOCAL-MACRO-DEFS."
                  (push (car form) letted))))
       `(let* ,(mapcar (lambda (pair)
                         (cond ((consp pair)
-                                 (list (car pair)
-                                       (expand-with-shadow pair)))
+                               (list (car pair)
+                                     (expand-with-shadow pair)))
                               ((symbolp pair) pair)
                               (t (error "不正な let* フォームです: ~S" form))))
                 (cadr form))
