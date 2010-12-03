@@ -37,5 +37,29 @@
       (assert-equal '(10 20 30)
           list))))
 
+(define-test tagbody
+  (assert-expands `(symbol-macrolet::progn? (tagbody start (go start)))
+      (symbol-macrolet ((start (error "hey")))
+        (tagbody start (go start)))))
+
+(define-test macrolet
+  (symbol-macrolet ((foo :symbol-macro))
+    (macrolet ((foo (x) `(list :macrolet ,x)))
+      (assert-equal '(:macrolet :symbol-macro)
+          (foo foo)))
+    (macrolet ((foo () `(list :macrolet foo)))
+      (assert-equal '(:macrolet :symbol-macro)
+          (foo)))
+    (macrolet ((foo (foo) `(list :macrolet ,foo)))
+      (assert-equal '(:macrolet :symbol-macro)
+          (foo foo))
+      (assert-equal '(:macrolet :value)
+          (foo :value)))
+    (macrolet ((foo () `(list :macrolet ,foo)))
+      (assert-equal '(:macrolet :symbol-macro)
+          (foo)))
+    ))
+
+
 
 ;;; tests/symbol-macrolet.lt ends here.
