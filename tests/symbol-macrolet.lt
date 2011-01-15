@@ -58,6 +58,10 @@
     (macrolet ((foo () `(list :macrolet ,foo)))
       (assert-equal '(:macrolet :symbol-macro)
           (foo)))
+    #|;; FIXME
+    (macrolet ((foo (&optional (foo foo)) foo))
+      (assert-equal ':symbol-macro (foo)))
+    ;|#
     ))
 
 
