@@ -37,6 +37,8 @@ THE SOFTWARE.
 
 (defconstant *version* "0.01.04")
 
+(export '(symbol-macrolet))
+
 ;;;;
 ;;;; * utilities
 ;;;;
@@ -185,12 +187,9 @@ local macros from LOCAL-MACRO-DEFS."
         (cddr form))))
 
 
-(in-package "lisp")
-(export '(symbol-macrolet))
-
 (defmacro symbol-macrolet (sym/macros &body forms &environment env)
   (multiple-value-bind (decl forms)
-      (find-declaration forms)
+      (lisp::find-declaration forms)
     (let ((em (and decl (eql (caadr decl) 'special)
                    (intersection (cdadr decl) (mapcar #'car sym/macros)))))
       (when em (error "declaring symbol macros as special:~{ ~S~}" em)))
