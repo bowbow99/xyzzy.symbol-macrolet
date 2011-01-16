@@ -27,11 +27,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 |#
 
-(require :setf-values)
+(require "setf-values")
 
-(eval-when (:execute :load-toplevel :compile-toplevel)
-  (defpackage :symbol-macrolet
-    (:use :lisp)))
+(defpackage :symbol-macrolet
+  (:use :lisp))
 
 (in-package :symbol-macrolet)
 
@@ -112,7 +111,7 @@ local macros from LOCAL-MACRO-DEFS."
                      (cddr form))))))
     (let* ((defs (mapcar #'expand-def (cadr form)))
            (env (merge-env env defs)))
-      `(macrolet (,@defs) ; nil))))
+      `(macrolet (,@defs)
          ,@(mapcar (lambda (form)
                      (expand-form form sym/macros env))
              (cddr form))))))
@@ -197,7 +196,6 @@ local macros from LOCAL-MACRO-DEFS."
                        (mapcar #'car sym/macros))))
       (when constants
         (error "constant variables cannot be a symbol macro:~{ ~S~}" constants)))
-    ;(ed::msgbox "~{~S~%~}" defs)
     `(symbol-macrolet::progn?
       ,@(mapcar (lambda (form)
                   (symbol-macrolet::expand-form form sym/macros env))
