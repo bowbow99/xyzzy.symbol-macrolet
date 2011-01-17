@@ -181,9 +181,10 @@ THE SOFTWARE.
                                 (expand-form form (shadowing sym/macros (cadr def)) env))
                         (cddr def))))
        (cadr form))
-    ,@(mapcar (lambda (form)
-                (expand-form form sym/macros env))
-        (cddr form))))
+    ,@(let ((new-env (merge-env env 'flet (cadr form))))
+        (mapcar (lambda (form)
+                  (expand-form form sym/macros new-env))
+          (cddr form)))))
 
 
 (defmacro symbol-macrolet (sym/macros &body forms &environment env)
