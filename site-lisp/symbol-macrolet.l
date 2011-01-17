@@ -45,12 +45,12 @@ THE SOFTWARE.
 (defmacro progn? (&body body)
   (if (> (length body) 1) `(progn ,@body) (car body)))
 
-(defun merge-env (env local-macro-defs)
+(defun merge-env (env type local-defs)
   "Return an environment object which contains everything in ENV plus
-local macros from LOCAL-MACRO-DEFS."
+ local function/macros from LOCAL-DEFS."
   (evalhook (let ((env (gensym)))
-              `(macrolet ,local-macro-defs
-                 (macrolet ((,env (&environment ,env) ,env)) (,env))))
+              `(,type ,local-defs
+                (macrolet ((,env (&environment ,env) ,env)) (,env))))
             nil nil env))
 
 (defun shadowing (sym/macros shadowed)
@@ -110,7 +110,7 @@ local macros from LOCAL-MACRO-DEFS."
                              (expand-form form sym/macros env))
                      (cddr form))))))
     (let* ((defs (mapcar #'expand-def (cadr form)))
-           (env (merge-env env defs)))
+           (env (merge-env env 'macrolet defs)))
       `(macrolet (,@defs)
          ,@(mapcar (lambda (form)
                      (expand-form form sym/macros env))
