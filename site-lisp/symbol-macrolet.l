@@ -77,7 +77,8 @@ THE SOFTWARE.
         (let (pass 'expand-let))
         (let* (pass 'expand-let*))
         (macrolet (pass 'expand-macrolet))
-        ((labels flet) (pass 'expand-flet))
+        (flet (pass 'expand-flet))
+        (labels (pass 'expand-labels))
         (function
          (if (consp (cadr form))
            `(function ,(expand-lambda (cadr form) sym/macros env))
@@ -185,6 +186,23 @@ THE SOFTWARE.
         (mapcar (lambda (form)
                   (expand-form form sym/macros new-env))
           (cddr form)))))
+
+(defun expand-labels (form sym/macros &optional env)
+  (let ((new-env env))
+    `(labels
+         ;; DEFINITIONS of local function
+         ,(mapcar (lambda (def)
+                    (setf new-env (merge-env new-env 'labels (list def)))
+                    (list* (car def)  ; NAME
+                           (cadr def) ; LAMBDA-LIST
+                           (mapcar (lambda (form)
+                                     (expand-form form (shadowing sym/macros (cadr def)) new-env))
+                             (cddr def)))) ; BODY of local-function
+            (cadr form))
+       ;; BODY of `labels' form
+       ,@(mapcar (lambda (form)
+                   (expand-form form sym/macros new-env))
+           (cddr form)))))
 
 
 (defmacro symbol-macrolet (sym/macros &body forms &environment env)
