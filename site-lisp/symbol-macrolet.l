@@ -174,18 +174,20 @@ THE SOFTWARE.
 
 
 (defun expand-flet (form sym/macros &optional env)
-  `(,(car form)
-    ,(mapcar (lambda (def)
-               (list* (car def) ;name
-                      (cadr def) ;lambda-list
-                      (mapcar (lambda (form)
-                                (expand-form form (shadowing sym/macros (cadr def)) env))
-                        (cddr def))))
-       (cadr form))
-    ,@(let ((new-env (merge-env env 'flet (cadr form))))
-        (mapcar (lambda (form)
-                  (expand-form form sym/macros new-env))
-          (cddr form)))))
+  `(flet
+       ;; DEFINITIONS of local functions
+       ,(mapcar (lambda (def)
+                  (list* (car def) ;NAME
+                         (cadr def) ;LAMBDA-LIST
+                         (mapcar (lambda (form)
+                                   (expand-form form (shadowing sym/macros (cadr def)) env))
+                           (cddr def))))
+          (cadr form))
+     ;; BODY of `flet' form
+     ,@(let ((new-env (merge-env env 'flet (cadr form))))
+         (mapcar (lambda (form)
+                   (expand-form form sym/macros new-env))
+           (cddr form)))))
 
 (defun expand-labels (form sym/macros &optional env)
   (let ((new-env env))
