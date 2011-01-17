@@ -69,22 +69,20 @@
     ))
 
 (define-test shadowing-functions
-  (assert-equal
+  (assert-equal '(:labels 3)
       (symbol-macrolet ()
         (macrolet ((foo (x) `(list :macrolet ',x)))
           (labels ((foo (x) (list :labels x)))
             ;; function `foo' should be shadowed by `labels' and
             ;; not expanded as local-macro `foo'.
-            (foo 3))))
-      '(:labels 3))
-  (assert-equal
+            (foo 3)))))
+  (assert-equal '(:flet 3)
       (symbol-macrolet ()
         (macrolet ((foo (x) `(list :macrolet ',x)))
           (flet   ((foo (x) (list :flet x)))
             ;; `flet' shadows `foo' as well.
-            (foo 3))))
-      '(:flet 3))
-  (assert-equal
+            (foo 3)))))
+  (assert-equal '(:macrolet (1- x))
       (symbol-macrolet ()
         (macrolet ((foo (x) `(list :macrolet ',x)))
           (flet ((foo (x)
@@ -92,9 +90,8 @@
             ;; First, `(foo 3)' call for a function introduced by flet,
             ;; and another call for `foo' in the body of local function
             ;; should be expanded as local-macro introduced by macrolet.
-            (foo 3))))
-      '(:macrolet (1- x)))
-  (assert-equal
+            (foo 3)))))
+  (assert-equal ':labels
       (symbol-macrolet ()
         (macrolet ((foo (x) `(list :macrolet ',x)))
           (labels ((foo (x)
@@ -102,8 +99,8 @@
                      ;; in the body of local-functions as well.  So following
                      ;; `(foo (1- x))' should be a recursion.
                      (if (zerop x) :labels (foo (1- x)))))
-            (foo 3))))
-      :labels))
+            (foo 3)))))
+  )
 
 
 ;;; tests/symbol-macrolet.lt ends here.
