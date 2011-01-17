@@ -45,12 +45,12 @@ THE SOFTWARE.
 (defmacro progn? (&body body)
   (if (> (length body) 1) `(progn ,@body) (car body)))
 
-(defun merge-env (env local-macro-defs)
+(defun merge-env (env type local-defs)
   "Return an environment object which contains everything in ENV plus
-local macros from LOCAL-MACRO-DEFS."
+ local function/macros from LOCAL-DEFS."
   (evalhook (let ((env (gensym)))
-              `(macrolet ,local-macro-defs
-                 (macrolet ((,env (&environment ,env) ,env)) (,env))))
+              `(,type ,local-defs
+                (macrolet ((,env (&environment ,env) ,env)) (,env))))
             nil nil env))
 
 (defun shadowing (sym/macros shadowed)
@@ -77,7 +77,8 @@ local macros from LOCAL-MACRO-DEFS."
         (let (pass 'expand-let))
         (let* (pass 'expand-let*))
         (macrolet (pass 'expand-macrolet))
-        ((labels flet) (pass 'expand-flet))
+        (flet (pass 'expand-flet))
+        (labels (pass 'expand-labels))
         (function
          (if (consp (cadr form))
            `(function ,(expand-lambda (cadr form) sym/macros env))
@@ -110,7 +111,7 @@ local macros from LOCAL-MACRO-DEFS."
                              (expand-form form sym/macros env))
                      (cddr form))))))
     (let* ((defs (mapcar #'expand-def (cadr form)))
-           (env (merge-env env defs)))
+           (env (merge-env env 'macrolet defs)))
       `(macrolet (,@defs)
          ,@(mapcar (lambda (form)
                      (expand-form form sym/macros env))
@@ -173,17 +174,37 @@ local macros from LOCAL-MACRO-DEFS."
 
 
 (defun expand-flet (form sym/macros &optional env)
-  `(,(car form)
-    ,(mapcar (lambda (def)
-               (list* (car def) ;name
-                      (cadr def) ;lambda-list
-                      (mapcar (lambda (form)
-                                (expand-form form (shadowing sym/macros (cadr def)) env))
-                        (cddr def))))
-       (cadr form))
-    ,@(mapcar (lambda (form)
-                (expand-form form sym/macros env))
-        (cddr form))))
+  `(flet
+       ;; DEFINITIONS of local functions
+       ,(mapcar (lambda (def)
+                  (list* (car def) ;NAME
+                         (cadr def) ;LAMBDA-LIST
+                         (mapcar (lambda (form)
+                                   (expand-form form (shadowing sym/macros (cadr def)) env))
+                           (cddr def))))
+          (cadr form))
+     ;; BODY of `flet' form
+     ,@(let ((new-env (merge-env env 'flet (cadr form))))
+         (mapcar (lambda (form)
+                   (expand-form form sym/macros new-env))
+           (cddr form)))))
+
+(defun expand-labels (form sym/macros &optional env)
+  (let ((new-env env))
+    `(labels
+         ;; DEFINITIONS of local function
+         ,(mapcar (lambda (def)
+                    (setf new-env (merge-env new-env 'labels (list def)))
+                    (list* (car def)  ; NAME
+                           (cadr def) ; LAMBDA-LIST
+                           (mapcar (lambda (form)
+                                     (expand-form form (shadowing sym/macros (cadr def)) new-env))
+                             (cddr def)))) ; BODY of local-function
+            (cadr form))
+       ;; BODY of `labels' form
+       ,@(mapcar (lambda (form)
+                   (expand-form form sym/macros new-env))
+           (cddr form)))))
 
 
 (defmacro symbol-macrolet (sym/macros &body forms &environment env)
