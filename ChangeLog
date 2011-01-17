@@ -1,0 +1,21 @@
+2010-05-19  bowbow99  <bowbow99@gmail.com>
+	* version 0.01.04
+	- リファレンスを UTF-8 にした
+	- リファレンスにXML宣言とDOCTYPE宣言を付けた
+
+2010-05-18  bowbow99  <bowbow99@gmail.com>
+	* version 0.01.03
+	- reference.xml 形式のリファレンスを付けた
+
+2009-08-14  bowbow99  <bowbow99@gmail.com>
+	* version 0.01.02
+	- #'symbol を #'(lambda ...) 同様に展開しようとしてたバグを修正
+	- lambda form の body の最初の式を展開していなかったバグを修正
+
+2009-08-10  bowbow99  <bowbow99@gmail.com>
+	* version 0.01.01
+	- let や let* でシンボルのみだった場合のバグを修正
+
+2009-07-17  bowbow99  <bowbow99@gmail.com>
+	* version 0.01.00
+	- 作った。公開した。

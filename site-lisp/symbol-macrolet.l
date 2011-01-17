@@ -27,15 +27,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 |#
 
-(require :setf-values)
+(require "setf-values")
 
-(eval-when (:execute :load-toplevel :compile-toplevel)
-  (defpackage :symbol-macrolet
-    (:use :lisp)))
+(defpackage :symbol-macrolet
+  (:use :lisp))
 
 (in-package :symbol-macrolet)
 
 (defconstant *version* "0.01.04")
+
+(export '(symbol-macrolet))
 
 ;;;;
 ;;;; * utilities
@@ -44,45 +45,30 @@ THE SOFTWARE.
 (defmacro progn? (&body body)
   (if (> (length body) 1) `(progn ,@body) (car body)))
 
-(defun defs->env (defs &optional form)
-  "Returns environment-object which contains local macros of <defs>."
-  (cond ((null defs) (eval form))
-        ((null form)
-         (let ((env (gensym)))
-           (defs->env defs
-                      `(macrolet ((,env (&environment ,env) ,env)) (,env)))))
-        (t (defs->env (cdr defs)
-                      `(macrolet ,(car defs) ,form)))))
-
-(defun macroexpand* (form &key defs env)
-  "Returns expansion of <form> in gine <env> and local macro <defs>."
-  (let ((global (macroexpand form))
-        (outer (macroexpand form env))
-        (inner (macroexpand form (defs->env defs))))
-    (or (find-if (lambda (expansion)
-                   (not (equal expansion global)))
-          (list inner outer))
-        global)))
+(defun merge-env (env type local-defs)
+  "Return an environment object which contains everything in ENV plus
+ local function/macros from LOCAL-DEFS."
+  (evalhook (let ((env (gensym)))
+              `(,type ,local-defs
+                (macrolet ((,env (&environment ,env) ,env)) (,env))))
+            nil nil env))
 
 (defun shadowing (sym/macros shadowed)
   (remove-if (lambda (sym/macro)
                (find (car sym/macro) shadowed))
     sym/macros))
 
-(defun expand-atom (form sym/macros &optional env defs)
-  (let ((found (find form sym/macros :key #'car)))
-    (if found
-        (identity (cadr found))
-      (identity form))))
+;;;;
+;;;; * Expand Forms
 
-(defun expand-form (form sym/macros &optional env defs)
-  (setq form (macroexpand* form :env env :defs defs))
+(defun expand-form (form sym/macros &optional env)
+  (setq form (macroexpand form env))
   (labels ((rec (form)
-             (expand-form form sym/macros env defs))
+             (expand-form form sym/macros env))
            (pass (fn)
-             (funcall fn form sym/macros env defs)))
+             (funcall fn form sym/macros env)))
     (if (atom form)
-        (expand-atom form sym/macros env defs)
+      (expand-atom form sym/macros env)
       (case (car form)
         (quote form)
         (setq `(setf ,@(mapcar #'rec (cdr form))))
@@ -91,10 +77,11 @@ THE SOFTWARE.
         (let (pass 'expand-let))
         (let* (pass 'expand-let*))
         (macrolet (pass 'expand-macrolet))
-        ((labels flet) (pass 'expand-flet))
+        (flet (pass 'expand-flet))
+        (labels (pass 'expand-labels))
         (function
          (if (consp (cadr form))
-             `(function ,(expand-lambda (cadr form) sym/macros env))
+           `(function ,(expand-lambda (cadr form) sym/macros env))
            form))
         (lambda (pass 'expand-lambda))
         ((throw catch return-from go block)
@@ -103,39 +90,47 @@ THE SOFTWARE.
         (t (list* (car form)
                   (mapcar #'rec (cdr form))))))))
 
-(defun expand-tagbody (form sym/macros &optional env defs)
+(defun expand-atom (form sym/macros &optional env)
+  (let ((found (find form sym/macros :key #'car)))
+    (if found
+      (identity (cadr found))
+      (identity form))))
+
+(defun expand-tagbody (form sym/macros &optional env)
   `(tagbody
      ,@(mapcar (lambda (form)
                  (if (symbolp form) form
-                   (expand-form form sym/macros env defs)))
+                   (expand-form form sym/macros env)))
          (cdr form))))
 
-(defun expand-macrolet (form sym/macros &optional env defs)
+(defun expand-macrolet (form sym/macros &optional env)
   (labels ((expand-def (form)
              `(,(car form) ,#1=(cadr form) ;NAME ARGS
                ,@(let ((sym/macros (shadowing sym/macros #1#)))
                    (mapcar (lambda (form)
-                             (expand-form form sym/macros env defs))
+                             (expand-form form sym/macros env))
                      (cddr form))))))
-    (let ((defs (cons (mapcar #'expand-def (cadr form)) defs)))
-      `(progn? ,@(mapcar (lambda (form)
-                           (expand-form form sym/macros env defs))
-                   (cddr form))))))
+    (let* ((defs (mapcar #'expand-def (cadr form)))
+           (env (merge-env env 'macrolet defs)))
+      `(macrolet (,@defs)
+         ,@(mapcar (lambda (form)
+                     (expand-form form sym/macros env))
+             (cddr form))))))
 
-(defun expand-mv-setq (form sym/macros &optional env defs)
+(defun expand-mv-setq (form sym/macros &optional env)
   `(setf (values ,@(mapcar (lambda (sym)
-                             (expand-atom sym sym/macros env defs))
+                             (expand-atom sym sym/macros env))
                      (cadr form)))
-         ,(expand-form (caddr form) sym/macros env defs)))
+         ,(expand-form (caddr form) sym/macros env)))
 
-(defun expand-mv-bind (form sym/macros &optional env defs)
+(defun expand-mv-bind (form sym/macros &optional env)
   (let ((syms (cadr form))
         (values (caddr form))
         (body (cdddr form)))
-    `(multiple-value-bind ,syms ,(expand-form values sym/macros env defs)
-       ,@(expand-form body (shadowing sym/macros syms) env defs))))
+    `(multiple-value-bind ,syms ,(expand-form values sym/macros env)
+       ,@(expand-form body (shadowing sym/macros syms) env))))
 
-(defun expand-let (form sym/macros &optional env defs)
+(defun expand-let (form sym/macros &optional env)
   (let ((letted (mapcar (lambda (letting)
                           (if (symbolp letting) letting
                             (car letting)))
@@ -143,74 +138,88 @@ THE SOFTWARE.
     `(let ,(mapcar (lambda (letting)
                      (cond ((consp letting)
                             (list (car letting)
-                                  (expand-form (cadr letting) sym/macros env defs)))
+                                  (expand-form (cadr letting) sym/macros env)))
                            ((symbolp letting) letting)
                            (t (error "不正な let フォームです:~%~S" form))))
              (cadr form))
        ,@(mapcar (lambda (form)
-                   (expand-form form (shadowing sym/macros letted) env defs))
+                   (expand-form form (shadowing sym/macros letted) env))
            (cddr form)))))
 
-(defun expand-let* (form sym/macros &optional env defs)
+(defun expand-let* (form sym/macros &optional env)
   (let ((letted nil))
     (labels ((expand-with-shadow (form)
                (prog1
-                   (expand-form (cadr form) (shadowing sym/macros letted)
-                                env defs)
+                   (expand-form (cadr form) (shadowing sym/macros letted) env)
                  (push (car form) letted))))
       `(let* ,(mapcar (lambda (pair)
                         (cond ((consp pair)
-                                 (list (car pair)
-                                       (expand-with-shadow pair)))
+                               (list (car pair)
+                                     (expand-with-shadow pair)))
                               ((symbolp pair) pair)
                               (t (error "不正な let* フォームです: ~S" form))))
                 (cadr form))
          ,@(let ((shadowed (shadowing sym/macros letted)))
              (mapcar (lambda (form)
-                       (expand-form form shadowed env defs))
+                       (expand-form form shadowed env))
                (cddr form)))))))
 
-(defun expand-lambda (form sym/macros &optional env defs)
+(defun expand-lambda (form sym/macros &optional env)
   (let ((vars (cadr form))
         (body (cddr form)))
     `(lambda ,vars
        ,@(mapcar (lambda (form)
-                   (expand-form form (shadowing sym/macros vars) env defs))
+                   (expand-form form (shadowing sym/macros vars) env))
            body))))
 
 
-(defun expand-flet (form sym/macros &optional env defs)
-  `(,(car form)
-    ,(mapcar (lambda (def)
-               (list* (car def) ;name
-                      (cadr def) ;lambda-list
-                      (mapcar (lambda (form)
-                                (expand-form form (shadowing sym/macros (cadr def))
-                                             env defs))
-                        (cddr def))))
-       (cadr form))
-    ,@(mapcar (lambda (form)
-                (expand-form form sym/macros env defs))
-        (cddr form))))
+(defun expand-flet (form sym/macros &optional env)
+  `(flet
+       ;; DEFINITIONS of local functions
+       ,(mapcar (lambda (def)
+                  (list* (car def) ;NAME
+                         (cadr def) ;LAMBDA-LIST
+                         (mapcar (lambda (form)
+                                   (expand-form form (shadowing sym/macros (cadr def)) env))
+                           (cddr def))))
+          (cadr form))
+     ;; BODY of `flet' form
+     ,@(let ((new-env (merge-env env 'flet (cadr form))))
+         (mapcar (lambda (form)
+                   (expand-form form sym/macros new-env))
+           (cddr form)))))
+
+(defun expand-labels (form sym/macros &optional env)
+  (let ((new-env env))
+    `(labels
+         ;; DEFINITIONS of local function
+         ,(mapcar (lambda (def)
+                    (setf new-env (merge-env new-env 'labels (list def)))
+                    (list* (car def)  ; NAME
+                           (cadr def) ; LAMBDA-LIST
+                           (mapcar (lambda (form)
+                                     (expand-form form (shadowing sym/macros (cadr def)) new-env))
+                             (cddr def)))) ; BODY of local-function
+            (cadr form))
+       ;; BODY of `labels' form
+       ,@(mapcar (lambda (form)
+                   (expand-form form sym/macros new-env))
+           (cddr form)))))
 
 
-(in-package "lisp")
-(export '(symbol-macrolet))
-
-(defmacro symbol-macrolet (defs &body forms &environment env)
+(defmacro symbol-macrolet (sym/macros &body forms &environment env)
   (multiple-value-bind (decl forms)
-      (find-declaration forms)
+      (lisp::find-declaration forms)
     (let ((em (and decl (eql (caadr decl) 'special)
-                   (intersection (cdadr decl) (mapcar #'car defs)))))
+                   (intersection (cdadr decl) (mapcar #'car sym/macros)))))
       (when em (error "declaring symbol macros as special:~{ ~S~}" em)))
     (let ((constants (remove-if-not #'constantp
-                       (mapcar #'car defs))))
+                       (mapcar #'car sym/macros))))
       (when constants
         (error "constant variables cannot be a symbol macro:~{ ~S~}" constants)))
-    ;(ed::msgbox "~{~S~%~}" defs)
     `(symbol-macrolet::progn?
       ,@(mapcar (lambda (form)
-                  (symbol-macrolet::expand-form form defs env))
+                  (symbol-macrolet::expand-form form sym/macros env))
           forms))))
 
 #+xyzzy
