@@ -99,8 +99,48 @@
                      ;; in the body of local-functions as well.  So following
                      ;; `(foo (1- x))' should be a recursion.
                      (if (zerop x) :labels (foo (1- x)))))
-            (foo 3)))))
-  )
+            (foo 3))))))
 
+(define-test init-form-in-&optional-parameter
+  (assert-eql :expansion
+      (symbol-macrolet ((foo :expansion))
+        ((lambda (&optional (x foo)) foo))))
+  (assert-eql :expansion
+      (symbol-macrolet ((foo :expansion))
+        ;; Should expand into `(&optional (foo :expansion))`, and
+        ((lambda (&optional (foo foo))
+           ;; this `foo' refer the parameter, not expand as symbol-macro
+           foo))))
+  (assert-eql :argument
+      (symbol-macrolet ((foo :expansion))
+        ;; `foo' at init-form should be shadowed by required parameter `foo'
+        ;; so it doesn't expand as symbol-macro
+        ((lambda (foo &optional (x foo))
+           x)
+         :argument))))
+
+(define-test init-form-in-&key-parameter
+  (assert-eql :expansion
+      (symbol-macrolet ((foo :expansion))
+        ((lambda (&key (x foo)) x))))
+  (assert-eql :argument
+      (symbol-macrolet ((foo :expansion))
+        ;; should expand, but not used since keyword argument for :x is given
+        ((lambda (&key (x foo)) x)
+         :x :argument)))
+  (assert-eql :argument
+      (symbol-macrolet ((foo :expansion))
+        ;; should be shadowed by required parameter `foo' and not expand
+        ((lambda (foo &key (x foo)) x)
+         :argument))))
+
+(define-test init-form-in-&aux-parameter
+  (assert-eql :expansion
+      (symbol-macrolet ((foo :expansion))
+        ((lambda (&aux (x foo)) x))))
+  (assert-eql :argument
+      (symbol-macrolet ((foo :expansion))
+        ((lambda (foo &aux (x foo)) x) ; should be shadowed and not expand
+         :argument))))
 
 ;;; tests/symbol-macrolet.lt ends here.
