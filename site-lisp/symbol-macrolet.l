@@ -193,6 +193,11 @@ THE SOFTWARE.
                         `(,param ,@(*expand (cdr *lambda-list) sym/macros param))))
                      (case state
                        (&required
+                        `(,(*expand param sym/macros) ; possibly destructuring
+                          ,@(*expand (cdr *lambda-list)
+                                     (if (symbolp param) (shadow-sym/macros param) sym/macros)
+                                     state)))
+                       (&required
                         (if (consp param)
                           `(,(*expand param sym/macros) ; possibly destructuring
                             ,@(*expand (cdr *lambda-list)
