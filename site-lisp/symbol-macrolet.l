@@ -87,8 +87,13 @@ THE SOFTWARE.
         ((throw catch return-from go block)
          `(,(car form) ,(cadr form) ,@(mapcar #'rec (cddr form))))
         (tagbody (pass 'expand-tagbody))
-        (t (list* (car form)
-                  (mapcar #'rec (cdr form))))))))
+        (t
+         `(,(if (and (consp (car form))
+                     (eql (caar form) 'lambda))
+              (expand-lambda (car form) sym/macros env)
+              (car form))
+           ,@(mapcar #'rec (cdr form))))))))
+
 
 (defun expand-atom (form sym/macros &optional env)
   (let ((found (find form sym/macros :key #'car)))
