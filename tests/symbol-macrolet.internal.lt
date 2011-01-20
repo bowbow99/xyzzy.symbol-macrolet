@@ -77,7 +77,7 @@
   (assert-lambda-list (&key ((a b) c d) &aux (c b)) (&key ((a b) "c" d) &aux (c b)))
   (assert-lambda-list (&key ((a b) c d) &aux (c c)) (&key ((a b) "c" d) &aux (c "c")))
   (assert-lambda-list (&key ((a b) c d) &aux (c d)) (&key ((a b) "c" d) &aux (c d)))
-  (assert-lambda-list (&key ((a b) c d) &aux (c e)) (&key ((a b) "c" d) &aux (c e)))
+  (assert-lambda-list (&key ((a b) c d) &aux (c e)) (&key ((a b) "c" d) &aux (c "e")))
   )
 
 (define-test expand-lambda-list-&aux
