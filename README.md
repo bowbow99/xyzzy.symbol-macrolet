@@ -1,12 +1,12 @@
-Overview
+これは何
 ============
-common-lisp の symbol-macrolet です。
+マクロで実装した Common Lisp の symbol-macrolet です。
 
 License
 =========
 The MIT License
 
-Copyright (c) 2009 bowbow99
+Copyright (c) 2009-2011 bowbow99
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,9 +27,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
-Install
-==========
-NOTE: NIY: NetInstaller からインストールしたなら以下は不要です。
+インストール
+============
+NOTE: NetInstaller からインストールしたなら以下は不要です。
 
 1. `*load-path*` のどっかに symbol-macrolet.l を置きます
 2. OPTIONAL: byte-compile します
@@ -37,12 +37,15 @@ NOTE: NIY: NetInstaller からインストールしたなら以下は不要で�
 「XXXって拡張をインストールしたら symbol-macrolet が必要とか言われた！！」という人はここまでやれば万事オッケーです。
 
 
-Usage (for developer)
-======================
+使い方（開発者向け）
+====================
 NOTE: ここは主に symbol-macrolet を使って拡張/lisp を書く人向け
 
-まず require します。
-    (require "symbol-macrolet")
+    (eval-when (:load-toplevel :compile-toplevel :execute)
+      (require "symbol-macrolet")
+      (use-package :symbol-macrolet))
+
+symbol-macrolet パッケージからマクロ `symbol-macrolet` を `export` してあるので、これで `symbol-macrolet` を使えるようになります。
 
 
 macro symbol-macrolet: ((_symbol_ _expansion_)\*) _declaration_ _form\*_
@@ -54,13 +57,12 @@ macro symbol-macrolet: ((_symbol_ _expansion_)\*) _declaration_ _form\*_
    - xyzzy で使える declare は special のみですが、special で symbol-macro の名前を指定するとエラーを吐くので、つまり使い道はありません。忘れてください。
 - _form_: [form]
 
-_form*_ 内で **symbol-macro** として指定された _symbol_ が（変数として参照される部分が)
+_form*_ 内で **symbol-macro** として指定された _symbol_ が（変数として参照される位置にあれば)
 、_expansion_ に展開（置換）された後、評価されます。
 
-- 参考:[CLHS: Special Operator SYMBOL-MACROLET](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_symbol.htm#symbol-macrolet)
+- 参考: [CLHS: Special Operator SYMBOL-MACROLET](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_symbol.htm#symbol-macrolet)
 
-EXAMPLE
----------
+# EXAMPLE
     (setq *list* '(1 2 3 4))
     => (1 2 3 4)
     
@@ -91,13 +93,12 @@ EXAMPLE
     foo: 1
     => nil
 
-about package
---------------
-symbol-macrolet.l は macro symbol-macrolet を lisp package から export しているので、ほとんどの場合は気にする必要ないです。
+パッケージについて
+------------------
+ver. 0.01.04 までマクロ `symbol-macrolet` を lisp パッケージから `export` してましたが、symbol-macrolet パッケージから `export` するように変更しました。
 
-それとは別に、いくつか関数を定義したりするのに "symbol-macrolet" という package を作っていますが、これは macro symbol-macrolet から symbol-macrolet::expand-form みたいに指定して使ってるだけで、普通は触る必要はないです。
-
-Performance
---------------
-symbol-macrolet は macro 展開時になんかごちゃごちゃやってるので、symbol-macrolet を使ったコードは byte-compile 推奨です。
+注意点、既知の問題など
+======================
+- symbol-macrolet は macro 展開時になんかごちゃごちゃやってるので、symbol-macrolet を使ったコードは byte-compile 推奨です。
+- `macroexpand`, `macroexpand-1` でシンボルマクロを展開できない。
 
