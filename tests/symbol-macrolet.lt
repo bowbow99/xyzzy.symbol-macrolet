@@ -68,6 +68,73 @@
     ;|#
     ))
 
+
+(define-test flet
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo () foo))
+          (foo))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (foo) foo))
+          (foo foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (foo)
+                 foo)) ; shadowed by parameter `foo'
+          (foo 3))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (&optional (foo foo)) ; init-form `foo' expands, but not used
+                 foo)) ; shadowed by parameter `foo'
+          (foo 3))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (&optional (foo foo)) ; init-form `foo' expands int `"FOO"`
+                 foo)) ; shadowed by parameter `foo' and refer to value of its
+                       ; expansion `"FOO"`
+          (foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (foo
+                     ;; init-form `foo' shadowed by required parameter `foo'
+                     &optional (bar foo))
+                 foo))
+          (foo 3)))))
+
+(define-test labels
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo () foo))
+          (foo))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (foo) foo))
+          (foo foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (foo)
+                 foo)) ; shadowed by parameter `foo'
+          (foo 3))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (&optional (foo foo)) ; init-form `foo' expands, but not used
+                 foo)) ; shadowed by parameter `foo'
+          (foo 3))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (&optional (foo foo)) ; init-form `foo' expands int `"FOO"`
+                 foo)) ; shadowed by parameter `foo' and refer to value of its
+                       ; expansion `"FOO"`
+          (foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (foo
+                     ;; init-form `foo' shadowed by required parameter `foo'
+                     &optional (bar foo))
+                 foo))
+          (foo 3)))))
+
 (define-test shadowing-functions
   (assert-equal '(:labels 3)
       (symbol-macrolet ()

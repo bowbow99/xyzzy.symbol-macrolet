@@ -232,11 +232,13 @@ THE SOFTWARE.
   `(flet
        ;; DEFINITIONS of local functions
        ,(mapcar (lambda (def)
-                  (list* (car def) ;NAME
-                         (cadr def) ;LAMBDA-LIST
-                         (mapcar (lambda (form)
-                                   (expand-form form (shadowing sym/macros (cadr def)) env))
-                           (cddr def))))
+                  (multiple-value-bind (lambda-list% sym/macros%)
+                      (expand-lambda-list (cadr def) sym/macros env)
+                    `(,(car def) ; NAME
+                      ,lambda-list%
+                      ,@(mapcar (lambda (form)
+                                  (expand-form form sym/macros% env))
+                          (cddr def)))))
           (cadr form))
      ;; BODY of `flet' form
      ,@(let ((new-env (merge-env env 'flet (cadr form))))
@@ -250,11 +252,13 @@ THE SOFTWARE.
          ;; DEFINITIONS of local function
          ,(mapcar (lambda (def)
                     (setf new-env (merge-env new-env 'labels (list def)))
-                    (list* (car def)  ; NAME
-                           (cadr def) ; LAMBDA-LIST
-                           (mapcar (lambda (form)
-                                     (expand-form form (shadowing sym/macros (cadr def)) new-env))
-                             (cddr def)))) ; BODY of local-function
+                    (multiple-value-bind (lambda-list% sym/macros%)
+                        (expand-lambda-list (cadr def) sym/macros env)
+                      `(,(car def) ; NAME
+                        ,lambda-list%
+                        ,@(mapcar (lambda (form)
+                                    (expand-form form sym/macros% new-env))
+                            (cddr def)))))
             (cadr form))
        ;; BODY of `labels' form
        ,@(mapcar (lambda (form)
