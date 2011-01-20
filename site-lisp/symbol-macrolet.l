@@ -42,9 +42,6 @@ THE SOFTWARE.
 ;;;; * utilities
 ;;;;
 
-(defmacro progn? (&body body)
-  (if (> (length body) 1) `(progn ,@body) (car body)))
-
 (defun merge-env (env type local-defs)
   "Return an environment object which contains everything in ENV plus
  local function/macros from LOCAL-DEFS."
@@ -278,7 +275,7 @@ THE SOFTWARE.
                        (mapcar #'car sym/macros))))
       (when constants
         (error "constant variables cannot be a symbol macro:~{ ~S~}" constants)))
-    `(symbol-macrolet::progn?
+    `(progn
       ,@(mapcar (lambda (form)
                   (symbol-macrolet::expand-form form sym/macros env))
           forms))))
