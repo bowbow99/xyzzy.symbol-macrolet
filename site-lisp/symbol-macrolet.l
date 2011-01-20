@@ -87,8 +87,13 @@ THE SOFTWARE.
         ((throw catch return-from go block)
          `(,(car form) ,(cadr form) ,@(mapcar #'rec (cddr form))))
         (tagbody (pass 'expand-tagbody))
-        (t (list* (car form)
-                  (mapcar #'rec (cdr form))))))))
+        (t
+         `(,(if (and (consp (car form))
+                     (eql (caar form) 'lambda))
+              (expand-lambda (car form) sym/macros env)
+              (car form))
+           ,@(mapcar #'rec (cdr form))))))))
+
 
 (defun expand-atom (form sym/macros &optional env)
   (let ((found (find form sym/macros :key #'car)))
@@ -104,12 +109,14 @@ THE SOFTWARE.
          (cdr form))))
 
 (defun expand-macrolet (form sym/macros &optional env)
-  (labels ((expand-def (form)
-             `(,(car form) ,#1=(cadr form) ;NAME ARGS
-               ,@(let ((sym/macros (shadowing sym/macros #1#)))
-                   (mapcar (lambda (form)
-                             (expand-form form sym/macros env))
-                     (cddr form))))))
+  (labels ((expand-def (def)
+             (multiple-value-bind (lambda-list% sym/macros%)
+                 (expand-lambda-list (cadr def) sym/macros env)
+               `(,(car def) ; NAME
+                 ,lambda-list%
+                 ,@(mapcar (lambda (form)
+                             (expand-form form sym/macros% env))
+                     (cddr def))))))
     (let* ((defs (mapcar #'expand-def (cadr form)))
            (env (merge-env env 'macrolet defs)))
       `(macrolet (,@defs)
@@ -164,24 +171,76 @@ THE SOFTWARE.
                        (expand-form form shadowed env))
                (cddr form)))))))
 
-(defun expand-lambda (form sym/macros &optional env)
-  (let ((vars (cadr form))
-        (body (cddr form)))
-    `(lambda ,vars
-       ,@(mapcar (lambda (form)
-                   (expand-form form (shadowing sym/macros vars) env))
-           body))))
 
+(defun expand-lambda-list (lambda-list sym/macros &optional env)
+  (macrolet ((shadow-sym/macros (sym)
+               `(setf sym/macros (shadowing sym/macros (list ,sym)))))
+    (labels ((*expand (*lambda-list &optional (state '&required))
+               (cond ((null *lambda-list) nil)
+                     ((symbolp *lambda-list)
+                      (shadow-sym/macros *lambda-list)
+                      *lambda-list)
+                     ((member (first *lambda-list) lambda-list-keywords :test #'eq)
+                      (let ((new-state (first *lambda-list)))
+                        (case new-state
+                          ((&whole &environment)
+                           (shadow-sym/macros (second *lambda-list))
+                           `(,new-state
+                             ,(second *lambda-list)
+                             ,@(*expand (cddr *lambda-list) state)))
+                          (&rest
+                           `(,new-state
+                             ,(*expand (second *lambda-list)) ; possibly destructuring
+                             ,@(*expand (cddr *lambda-list))))
+                          (t
+                           `(,new-state ,@(*expand (cdr *lambda-list) new-state))))))
+                     (t
+                      (let ((param (first *lambda-list)))
+                        (case state
+                          (&required
+                           (shadow-sym/macros param)
+                           `(,(*expand param) ; possibly destructuring
+                             ,@(*expand (cdr *lambda-list) state)))
+                          ((&optional &key &aux)
+                           `(,(cond ((symbolp param)
+                                     (shadow-sym/macros param)
+                                     param)
+                                    ((consp param)
+                                     (let* ((len (length param))
+                                            (init-form (if (>= len 2)
+                                                         (expand-form (second param) sym/macros env))))
+                                       (shadow-sym/macros (if (consp (first param))
+                                                            ;; ((keysym var) ..) in &key parameters
+                                                            (second (first param))
+                                                            (first param)))
+                                       (when (= len 3)
+                                         (shadow-sym/macros (third param)))
+                                       `(,(first param)
+                                         ,@(when (>= len 2) (list init-form))
+                                         ,@(when (>= len 3) (list (third param)))))))
+                             ,@(*expand (cdr *lambda-list) state)))))))))
+      (values (*expand lambda-list)
+              sym/macros))))
+
+(defun expand-lambda (form sym/macros &optional env)
+  (multiple-value-bind (lambda-list% sym/macros%)
+      (expand-lambda-list (cadr form) sym/macros env)
+    `(lambda ,lambda-list%
+       ,@(mapcar (lambda (form)
+                   (expand-form form sym/macros% env))
+           (cddr form)))))
 
 (defun expand-flet (form sym/macros &optional env)
   `(flet
        ;; DEFINITIONS of local functions
        ,(mapcar (lambda (def)
-                  (list* (car def) ;NAME
-                         (cadr def) ;LAMBDA-LIST
-                         (mapcar (lambda (form)
-                                   (expand-form form (shadowing sym/macros (cadr def)) env))
-                           (cddr def))))
+                  (multiple-value-bind (lambda-list% sym/macros%)
+                      (expand-lambda-list (cadr def) sym/macros env)
+                    `(,(car def) ; NAME
+                      ,lambda-list%
+                      ,@(mapcar (lambda (form)
+                                  (expand-form form sym/macros% env))
+                          (cddr def)))))
           (cadr form))
      ;; BODY of `flet' form
      ,@(let ((new-env (merge-env env 'flet (cadr form))))
@@ -195,11 +254,13 @@ THE SOFTWARE.
          ;; DEFINITIONS of local function
          ,(mapcar (lambda (def)
                     (setf new-env (merge-env new-env 'labels (list def)))
-                    (list* (car def)  ; NAME
-                           (cadr def) ; LAMBDA-LIST
-                           (mapcar (lambda (form)
-                                     (expand-form form (shadowing sym/macros (cadr def)) new-env))
-                             (cddr def)))) ; BODY of local-function
+                    (multiple-value-bind (lambda-list% sym/macros%)
+                        (expand-lambda-list (cadr def) sym/macros env)
+                      `(,(car def) ; NAME
+                        ,lambda-list%
+                        ,@(mapcar (lambda (form)
+                                    (expand-form form sym/macros% new-env))
+                            (cddr def)))))
             (cadr form))
        ;; BODY of `labels' form
        ,@(mapcar (lambda (form)

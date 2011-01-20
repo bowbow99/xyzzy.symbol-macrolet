@@ -62,11 +62,125 @@
     (macrolet ((foo () `(list :macrolet ,foo)))
       (assert-equal '(:macrolet :symbol-macro)
           (foo)))
-    #|;; FIXME
     (macrolet ((foo (&optional (foo foo)) foo))
-      (assert-equal ':symbol-macro (foo)))
-    ;|#
-    ))
+      (assert-equal ':symbol-macro (foo))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo () `',foo))
+          (foo))))
+  (assert-equal 'foo
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (foo) `',foo))
+          (foo foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (&optional foo) `',foo))
+          (foo 3))))
+  (assert-equal nil
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (&optional foo) `',foo))
+          (foo))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (&optional (foo foo)) `',foo))
+          (foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (&optional (foo foo)) `',foo))
+          (foo 3))))
+  (assert-equal '(1 2 3)
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c a))
+                     `(list ,a ,b ,c)))
+          (foo (1 2) 3))))
+  (assert-equal '(1 2 1)
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c a))
+                     `(list ,a ,b ,c)))
+          (foo (1 2)))))
+  (assert-equal '(1 2 2)
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c b))
+                     `(list ,a ,b ,c)))
+          (foo (1 2)))))
+  (assert-equal '(1 2 "c")
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c c))
+                     `(list ,a ,b ,c)))
+          (foo (1 2)))))
+  (assert-equal '(1 2 "d")
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c d))
+                     `(list ,a ,b ,c)))
+          (foo (1 2)))))
+  )
+
+
+(define-test flet
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo () foo))
+          (foo))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (foo) foo))
+          (foo foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (foo)
+                 foo)) ; shadowed by parameter `foo'
+          (foo 3))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (&optional (foo foo)) ; init-form `foo' expands, but not used
+                 foo)) ; shadowed by parameter `foo'
+          (foo 3))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (&optional (foo foo)) ; init-form `foo' expands int `"FOO"`
+                 foo)) ; shadowed by parameter `foo' and refer to value of its
+                       ; expansion `"FOO"`
+          (foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (flet ((foo (foo
+                     ;; init-form `foo' shadowed by required parameter `foo'
+                     &optional (bar foo))
+                 foo))
+          (foo 3)))))
+
+(define-test labels
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo () foo))
+          (foo))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (foo) foo))
+          (foo foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (foo)
+                 foo)) ; shadowed by parameter `foo'
+          (foo 3))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (&optional (foo foo)) ; init-form `foo' expands, but not used
+                 foo)) ; shadowed by parameter `foo'
+          (foo 3))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (&optional (foo foo)) ; init-form `foo' expands int `"FOO"`
+                 foo)) ; shadowed by parameter `foo' and refer to value of its
+                       ; expansion `"FOO"`
+          (foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (labels ((foo (foo
+                     ;; init-form `foo' shadowed by required parameter `foo'
+                     &optional (bar foo))
+                 foo))
+          (foo 3)))))
 
 (define-test shadowing-functions
   (assert-equal '(:labels 3)
@@ -99,8 +213,48 @@
                      ;; in the body of local-functions as well.  So following
                      ;; `(foo (1- x))' should be a recursion.
                      (if (zerop x) :labels (foo (1- x)))))
-            (foo 3)))))
-  )
+            (foo 3))))))
 
+(define-test init-form-in-&optional-parameter
+  (assert-eql :expansion
+      (symbol-macrolet ((foo :expansion))
+        ((lambda (&optional (x foo)) foo))))
+  (assert-eql :expansion
+      (symbol-macrolet ((foo :expansion))
+        ;; Should expand into `(&optional (foo :expansion))`, and
+        ((lambda (&optional (foo foo))
+           ;; this `foo' refer the parameter, not expand as symbol-macro
+           foo))))
+  (assert-eql :argument
+      (symbol-macrolet ((foo :expansion))
+        ;; `foo' at init-form should be shadowed by required parameter `foo'
+        ;; so it doesn't expand as symbol-macro
+        ((lambda (foo &optional (x foo))
+           x)
+         :argument))))
+
+(define-test init-form-in-&key-parameter
+  (assert-eql :expansion
+      (symbol-macrolet ((foo :expansion))
+        ((lambda (&key (x foo)) x))))
+  (assert-eql :argument
+      (symbol-macrolet ((foo :expansion))
+        ;; should expand, but not used since keyword argument for :x is given
+        ((lambda (&key (x foo)) x)
+         :x :argument)))
+  (assert-eql :argument
+      (symbol-macrolet ((foo :expansion))
+        ;; should be shadowed by required parameter `foo' and not expand
+        ((lambda (foo &key (x foo)) x)
+         :argument))))
+
+(define-test init-form-in-&aux-parameter
+  (assert-eql :expansion
+      (symbol-macrolet ((foo :expansion))
+        ((lambda (&aux (x foo)) x))))
+  (assert-eql :argument
+      (symbol-macrolet ((foo :expansion))
+        ((lambda (foo &aux (x foo)) x) ; should be shadowed and not expand
+         :argument))))
 
 ;;; tests/symbol-macrolet.lt ends here.
