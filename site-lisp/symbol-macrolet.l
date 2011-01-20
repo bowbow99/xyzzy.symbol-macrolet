@@ -166,62 +166,53 @@ THE SOFTWARE.
 
 
 (defun expand-lambda-list (lambda-list sym/macros &optional env)
-  (macrolet ((shadow-sym/macros (&rest vars)
-               `(shadowing sym/macros (list ,@vars))))
-    (labels ((*expand (*lambda-list sym/macros &optional (state '&required))
-               (if (symbolp *lambda-list)
-                 *lambda-list
-                 (let ((param (first *lambda-list)))
-                   (if (member param lambda-list-keywords :test #'eql)
-                     (case param
-                       ((&whole &environment)
-                        `(,param
-                          ,(second *lambda-list)
-                          ,@(*expand (cddr *lambda-list)
-                                     (shadow-sym/macros (second *lambda-list))
-                                     state)))
-                       (&rest
-                        `(,param
-                          ,(second *lambda-list)
-                          ,@(when (cddr *lambda-list)
-                              (unless (member (third *lambda-list) '(&key &aux) :test #'eql)
-                                (error 'invalid-lambda-list :datum lambda-list))
-                              (*expand (cdddr *lambda-list)
-                                       (shadow-sym/macros (second *lambda-list))
-                                       (third *lambda-list)))))
-                       (t
-                        `(,param ,@(*expand (cdr *lambda-list) sym/macros param))))
-                     (case state
-                       (&required
-                        `(,(*expand param sym/macros) ; possibly destructuring
-                          ,@(*expand (cdr *lambda-list)
-                                     (if (symbolp param) (shadow-sym/macros param) sym/macros)
-                                     state)))
-                       (&required
-                        (if (consp param)
-                          `(,(*expand param sym/macros) ; possibly destructuring
-                            ,@(*expand (cdr *lambda-list)
-                                       sym/macros
-                                       '&required))
-                          `(,param
-                            ,@(*expand (cdr *lambda-list)
-                                       (shadow-sym/macros param)
-                                       '&required))))
-                       ((&optional &key &aux)
-                        (if (consp param)
-                          `((,(first param)
-                             ,@(when (second param)
-                                 (list (expand-form (second param) sym/macros env)))
-                             ,@(when (third param)
-                                 (list (third param))))
-                            ,@(*expand (cdr *lambda-list)
-                                       (shadow-sym/macros (first param))
-                                       state))
-                          `(,param
-                            ,@(*expand (cdr *lambda-list)
-                                       (shadow-sym/macros param)
-                                       state))))))))))
-      (*expand lambda-list sym/macros))))
+  (macrolet ((shadow-sym/macros (sym)
+               `(setf sym/macros (shadowing sym/macros (list ,sym)))))
+    (labels ((*expand (*lambda-list &optional (state '&required))
+               (cond ((null *lambda-list) nil)
+                     ((symbolp *lambda-list)
+                      (shadow-sym/macros *lambda-list)
+                      *lambda-list)
+                     ((member (first *lambda-list) lambda-list-keywords :test #'eq)
+                      (let ((new-state (first *lambda-list)))
+                        (case new-state
+                          ((&whole &environment)
+                           (shadow-sym/macros (second *lambda-list))
+                           `(,new-state
+                             ,(second *lambda-list)
+                             ,@(*expand (cddr *lambda-list) state)))
+                          (&rest
+                           `(,new-state
+                             ,(*expand (second *lambda-list)) ; possibly destructuring
+                             ,@(*expand (cddr *lambda-list))))
+                          (t
+                           `(,new-state ,@(*expand (cdr *lambda-list) new-state))))))
+                     (t
+                      (let ((param (first *lambda-list)))
+                        (case state
+                          (&required
+                           (shadow-sym/macros param)
+                           `(,(*expand param) ; possibly destructuring
+                             ,@(*expand (cdr *lambda-list) state)))
+                          ((&optional &key &aux)
+                           `(,(cond ((symbolp param)
+                                     (shadow-sym/macros param)
+                                     param)
+                                    ((consp param)
+                                     (let* ((len (length param))
+                                            (init-form (if (>= len 2)
+                                                         (expand-form (second param) sym/macros env))))
+                                       (shadow-sym/macros (if (consp (first param))
+                                                            ;; ((keysym var) ..) in &key parameters
+                                                            (second (first param))
+                                                            (first param)))
+                                       (when (= len 3)
+                                         (shadow-sym/macros (third param)))
+                                       `(,(first param)
+                                         ,@(when (>= len 2) (list init-form))
+                                         ,@(when (>= len 3) (list (third param)))))))
+                             ,@(*expand (cdr *lambda-list) state)))))))))
+      (*expand lambda-list))))
 
 (defun expand-lambda (form sym/macros &optional env)
   (let ((vars (cadr form))
