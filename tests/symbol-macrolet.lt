@@ -42,7 +42,7 @@
           list))))
 
 (define-test tagbody
-  (assert-expands `(symbol-macrolet::progn? (tagbody start (go start)))
+  (assert-expands `(progn (tagbody start (go start)))
       (symbol-macrolet ((start (error "hey")))
         (tagbody start (go start)))))
 
