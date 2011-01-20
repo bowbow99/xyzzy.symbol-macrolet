@@ -217,16 +217,16 @@ THE SOFTWARE.
                                          ,@(when (>= len 2) (list init-form))
                                          ,@(when (>= len 3) (list (third param)))))))
                              ,@(*expand (cdr *lambda-list) state)))))))))
-      (*expand lambda-list))))
+      (values (*expand lambda-list)
+              sym/macros))))
 
 (defun expand-lambda (form sym/macros &optional env)
-  (let ((vars (cadr form))
-        (body (cddr form)))
-    `(lambda ,vars
+  (multiple-value-bind (lambda-list% sym/macros%)
+      (expand-lambda-list (cadr form) sym/macros env)
+    `(lambda ,lambda-list%
        ,@(mapcar (lambda (form)
-                   (expand-form form (shadowing sym/macros vars) env))
-           body))))
-
+                   (expand-form form sym/macros% env))
+           (cddr form)))))
 
 (defun expand-flet (form sym/macros &optional env)
   `(flet
