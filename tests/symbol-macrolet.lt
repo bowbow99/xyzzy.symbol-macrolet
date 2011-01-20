@@ -62,11 +62,58 @@
     (macrolet ((foo () `(list :macrolet ,foo)))
       (assert-equal '(:macrolet :symbol-macro)
           (foo)))
-    #|;; FIXME
     (macrolet ((foo (&optional (foo foo)) foo))
-      (assert-equal ':symbol-macro (foo)))
-    ;|#
-    ))
+      (assert-equal ':symbol-macro (foo))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo () `',foo))
+          (foo))))
+  (assert-equal 'foo
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (foo) `',foo))
+          (foo foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (&optional foo) `',foo))
+          (foo 3))))
+  (assert-equal nil
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (&optional foo) `',foo))
+          (foo))))
+  (assert-equal "FOO"
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (&optional (foo foo)) `',foo))
+          (foo))))
+  (assert-equal 3
+      (symbol-macrolet ((foo "FOO"))
+        (macrolet ((foo (&optional (foo foo)) `',foo))
+          (foo 3))))
+  (assert-equal '(1 2 3)
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c a))
+                     `(list ,a ,b ,c)))
+          (foo (1 2) 3))))
+  (assert-equal '(1 2 1)
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c a))
+                     `(list ,a ,b ,c)))
+          (foo (1 2)))))
+  (assert-equal '(1 2 2)
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c b))
+                     `(list ,a ,b ,c)))
+          (foo (1 2)))))
+  (assert-equal '(1 2 "c")
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c c))
+                     `(list ,a ,b ,c)))
+          (foo (1 2)))))
+  (assert-equal '(1 2 "d")
+      (symbol-macrolet ((a "a") (b "b") (c "c") (d "d"))
+        (macrolet ((foo ((a b) &optional (c d))
+                     `(list ,a ,b ,c)))
+          (foo (1 2)))))
+  )
 
 
 (define-test flet

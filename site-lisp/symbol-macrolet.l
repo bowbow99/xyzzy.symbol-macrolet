@@ -109,12 +109,14 @@ THE SOFTWARE.
          (cdr form))))
 
 (defun expand-macrolet (form sym/macros &optional env)
-  (labels ((expand-def (form)
-             `(,(car form) ,#1=(cadr form) ;NAME ARGS
-               ,@(let ((sym/macros (shadowing sym/macros #1#)))
-                   (mapcar (lambda (form)
-                             (expand-form form sym/macros env))
-                     (cddr form))))))
+  (labels ((expand-def (def)
+             (multiple-value-bind (lambda-list% sym/macros%)
+                 (expand-lambda-list (cadr def) sym/macros env)
+               `(,(car def) ; NAME
+                 ,lambda-list%
+                 ,@(mapcar (lambda (form)
+                             (expand-form form sym/macros% env))
+                     (cddr def))))))
     (let* ((defs (mapcar #'expand-def (cadr form)))
            (env (merge-env env 'macrolet defs)))
       `(macrolet (,@defs)
