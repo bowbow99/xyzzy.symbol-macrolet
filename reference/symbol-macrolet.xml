@@ -33,7 +33,7 @@
 <title>symbol-macrolet</title>
 <type>Macro</type>
 <arguments>symbol-macrolet ((SYMBOL EXPANTION)*) FORM*</arguments>
-<package>symbol-macrolet</package>
+<package>lisp</package>
 <description>
 FORM* 内に現れる変数として参照される SYMBOL を EXPANTION に展開して FORM*
 を評価します。

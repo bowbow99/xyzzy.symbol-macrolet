@@ -42,14 +42,13 @@ NOTE: NetInstaller からインストールしたなら以下は不要です。
 NOTE: ここは主に symbol-macrolet を使って拡張/lisp を書く人向け
 
     (eval-when (:load-toplevel :compile-toplevel :execute)
-      (require "symbol-macrolet")
-      (use-package :symbol-macrolet))
+      (require "symbol-macrolet"))
 
-symbol-macrolet パッケージからマクロ `symbol-macrolet` を `export` してあるので、これで `symbol-macrolet` を使えるようになります。
+マクロ `symbol-macrolet` は lisp パッケージから `export` してあるので、読み込んでおけば使えるようになります。
 
 
-macro symbol-macrolet: ((_symbol_ _expansion_)\*) _declaration_ _form\*_
------------------------------------------------------------------
+Macro symbol-macrolet: ((_symbol_ _expansion_)\*) _declaration_ _form\*_
+------------------------------------------------------------------------
 
 - _symbol_: [symbol] symbol-macro の名前
 - _expansion_: [form] symbol-macro の展開形
@@ -93,12 +92,8 @@ _form*_ 内で **symbol-macro** として指定された _symbol_ が（変数�
     foo: 1
     => nil
 
-パッケージについて
-------------------
-ver. 0.01.04 までマクロ `symbol-macrolet` を lisp パッケージから `export` してましたが、symbol-macrolet パッケージから `export` するように変更しました。
 
 注意点、既知の問題など
 ======================
 - symbol-macrolet は macro 展開時になんかごちゃごちゃやってるので、symbol-macrolet を使ったコードは byte-compile 推奨です。
 - `macroexpand`, `macroexpand-1` でシンボルマクロを展開できない。
-
