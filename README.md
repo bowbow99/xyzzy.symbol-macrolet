@@ -1,31 +1,6 @@
 これは何
-============
-マクロで実装した Common Lisp の symbol-macrolet です。
-
-License
 =========
-The MIT License
-
-Copyright (c) 2009-2011 bowbow99
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
+マクロで実装した Common Lisp の symbol-macrolet です。
 
 インストール
 ============
@@ -34,34 +9,23 @@ NOTE: NetInstaller からインストールしたなら以下は不要です。
 1. `*load-path*` のどっかに symbol-macrolet.l を置きます
 2. OPTIONAL: byte-compile します
 
-「XXXって拡張をインストールしたら symbol-macrolet が必要とか言われた！！」という人はここまでやれば万事オッケーです。
-
+「XXXって拡張をインストールしたら symbol-macrolet が必要とか言われた！！」
+という人はここまでやれば万事オッケーです。
 
 使い方（開発者向け）
 ====================
-NOTE: ここは主に symbol-macrolet を使って拡張/lisp を書く人向け
+マクロ `symbol-macrolet` が lisp パッケージから `export` してあるので、読み
+込んでおけば使えるようになります。
 
     (eval-when (:load-toplevel :compile-toplevel :execute)
       (require "symbol-macrolet"))
 
-マクロ `symbol-macrolet` は lisp パッケージから `export` してあるので、読み込んでおけば使えるようになります。
+参考: [CLHS: Special Operator SYMBOL-MACROLET][1]
 
+  [1]: http://www.lispworks.com/documentation/lw50/CLHS/Body/s_symbol.htm#symbol-macrolet
 
-Macro symbol-macrolet: ((_symbol_ _expansion_)\*) _declaration_ _form\*_
-------------------------------------------------------------------------
-
-- _symbol_: [symbol] symbol-macro の名前
-- _expansion_: [form] symbol-macro の展開形
-- _declaration_: (declare ...)
-   - xyzzy で使える declare は special のみですが、special で symbol-macro の名前を指定するとエラーを吐くので、つまり使い道はありません。忘れてください。
-- _form_: [form]
-
-_form*_ 内で **symbol-macro** として指定された _symbol_ が（変数として参照される位置にあれば)
-、_expansion_ に展開（置換）された後、評価されます。
-
-- 参考: [CLHS: Special Operator SYMBOL-MACROLET](http://www.lispworks.com/documentation/lw50/CLHS/Body/s_symbol.htm#symbol-macrolet)
-
-# EXAMPLE
+EXAMPLE
+-------
     (setq *list* '(1 2 3 4))
     => (1 2 3 4)
     
@@ -92,8 +56,18 @@ _form*_ 内で **symbol-macro** として指定された _symbol_ が（変数�
     foo: 1
     => nil
 
-
 注意点、既知の問題など
 ======================
-- symbol-macrolet は macro 展開時になんかごちゃごちゃやってるので、symbol-macrolet を使ったコードは byte-compile 推奨です。
+- symbol-macrolet は macro 展開時になんかごちゃごちゃやってるので、symbol-
+  macrolet を使ったコードは byte-compile 推奨です。
 - `macroexpand`, `macroexpand-1` でシンボルマクロを展開できない。
+
+バグ報告、質問、要望などは [GitHub Issues][2] か [@bowbow99][3] あたりへ
+お願いします。
+
+  [2]: http://github.com/bowbow99/xyzzy.symbol-macrolet/issues
+  [3]: http://twitter.com/bowbow99/
+
+ライセンス
+==========
+MIT (see COPYING)

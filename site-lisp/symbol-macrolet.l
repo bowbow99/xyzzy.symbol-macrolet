@@ -1,31 +1,16 @@
-;;;; -*- mode: lisp; package: lisp -*-
-;;;;
-;;;; symbol-macrolet.l --- common-lisp's symbol-macrolet for xyzzy-lisp.
-;;;;
-;;;; Author: bowbow99 <bowbow99@gmail.com>
-;;;;
-;;;; License: The MIT License (http://www.opensource.org/licenses/mit-license.php)
-#|
-Copyright (c) 2009-2011 bowbow99
+;;; -*- mode: lisp; package: lisp -*-
+;;;
+;;; symbol-macrolet.l --- common-lisp's symbol-macrolet for xyzzy-lisp.
+;;;
+;;; Author: bowbow99 <bowbow99@gmail.com>
+;;; Version: 0.01.05
+;;; Category: Lisp Libraries
+;;; Depends: setf-values
+;;; License: MIT (see COPYING)
+;;; Commentary: (see README.md)
+;;; Change Log: (see ChangeLog)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-|#
+;;; Code:
 
 (require "setf-values")
 
@@ -34,7 +19,7 @@ THE SOFTWARE.
 
 (in-package :symbol-macrolet)
 
-(defconstant *version* "0.01.04")
+(defconstant *version* "0.01.05")
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (export (mapcar (lambda (name) (intern (string name) :lisp))
@@ -282,10 +267,10 @@ THE SOFTWARE.
       ,@(mapcar (lambda (form)
                   (symbol-macrolet::expand-form form sym/expansions env))
           forms))))
-
 #+xyzzy
 (setf (get 'symbol-macrolet 'ed:lisp-indent-hook) 1
       (get 'symbol-macrolet 'ed::lisp-indent-flet) t)
 
 (provide "symbol-macrolet")
-;;;; symbol-macrolet.l ends here
+
+;;; symbol-macrolet.l ends here
