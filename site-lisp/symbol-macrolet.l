@@ -36,6 +36,10 @@ THE SOFTWARE.
 
 (defconstant *version* "0.01.04")
 
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (export (mapcar (lambda (name) (intern (string name) :lisp))
+            '(#:symbol-macrolet))
+          :lisp))
 
 ;;;;
 ;;;; * utilities
@@ -264,13 +268,9 @@ THE SOFTWARE.
            (cddr form)))))
 
 
-(in-package :lisp)
-
-(export '(symbol-macrolet))
-
 (defmacro lisp:symbol-macrolet (sym/expansions &body forms &environment env)
   (multiple-value-bind (decl forms)
-      (find-declaration forms)
+      (lisp::find-declaration forms)
     (let ((em (and decl (eql (caadr decl) 'special)
                    (intersection (cdadr decl) (mapcar #'car sym/expansions)))))
       (when em (error "declaring symbol macros as special:~{ ~S~}" em)))
