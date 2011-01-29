@@ -1,6 +1,6 @@
 ;;; -*- mode: lisp; package: lisp -*-
 ;;;
-;;; symbol-macrolet.l --- common-lisp's symbol-macrolet for xyzzy-lisp.
+;;; symbol-macrolet.l --- É}ÉNÉçÇ≈é¿ëïÇµÇΩ Common Lisp ÇÃ symbol-macrolet
 ;;;
 ;;; Author: bowbow99 <bowbow99@gmail.com>
 ;;; Version: 0.01.05
