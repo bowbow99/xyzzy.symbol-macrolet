@@ -1,3 +1,13 @@
+2011-01-30  bowbow99  <bowbow99@gmail.com>
+	* version 0.01.05
+	- symbol-macrolet 内の macrolet で定義したローカルマクロが展開されない
+	  場合があったバグを修正
+	- オペレータに置いた lambda 式内の symbol-macro が展開されてなかった
+	  バグを修正
+	- lambda, labels, flet, macrolet の lambda-list （仮引数）で、初期値式
+	  の symbol-macro が展開されてなかったバグを修正
+	- コード見直し
+
 2010-05-19  bowbow99  <bowbow99@gmail.com>
 	* version 0.01.04
 	- リファレンスを UTF-8 にした
