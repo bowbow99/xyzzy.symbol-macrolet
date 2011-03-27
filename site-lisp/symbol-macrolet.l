@@ -86,6 +86,11 @@
       (identity (cadr found))
       (identity form))))
 
+(defun expand-body (body sym/expansions &optional env)
+  (mapcar (lambda (form)
+            (expand-form form sym/expansions env))
+    body))
+
 (defun expand-tagbody (form sym/expansions &optional env)
   `(tagbody
      ,@(mapcar (lambda (form)
