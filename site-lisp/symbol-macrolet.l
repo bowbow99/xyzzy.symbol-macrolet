@@ -110,9 +110,7 @@
     (let* ((defs (mapcar #'expand-def (cadr form)))
            (env (merge-env env 'macrolet defs)))
       `(macrolet (,@defs)
-         ,@(mapcar (lambda (form)
-                     (expand-form form sym/expansions env))
-             (cddr form))))))
+         ,@(expand-body (cddr form) sym/expansions env)))))
 
 (defun expand-mv-setq (form sym/expansions &optional env)
   `(setf (values ,@(mapcar (lambda (sym)
@@ -139,9 +137,7 @@
                            ((symbolp letting) letting)
                            (t (error "不正な let フォームです:~%~S" form))))
              (cadr form))
-       ,@(mapcar (lambda (form)
-                   (expand-form form (shadow-symbol sym/expansions letted) env))
-           (cddr form)))))
+       ,@(expand-body (cddr form) (shadow-symbol sym/expansions letted) env))))
 
 (defun expand-let* (form sym/expansions &optional env)
   (let ((letted nil))
@@ -156,10 +152,7 @@
                               ((symbolp pair) pair)
                               (t (error "不正な let* フォームです: ~S" form))))
                 (cadr form))
-         ,@(let ((shadowed (shadow-symbol sym/expansions letted)))
-             (mapcar (lambda (form)
-                       (expand-form form shadowed env))
-               (cddr form)))))))
+         ,@(expand-body (cddr form) (shadow-symbol sym/expansions letted) env)))))
 
 
 (defun expand-lambda-list (lambda-list sym/expansions &optional env)
@@ -216,9 +209,7 @@
   (multiple-value-bind (lambda-list% sym/expansions%)
       (expand-lambda-list (cadr form) sym/expansions env)
     `(lambda ,lambda-list%
-       ,@(mapcar (lambda (form)
-                   (expand-form form sym/expansions% env))
-           (cddr form)))))
+       ,@(expand-body (cddr form) sym/expansions% env))))
 
 (defun expand-flet (form sym/expansions &optional env)
   `(flet
@@ -232,11 +223,7 @@
                                   (expand-form form sym/expansions% env))
                           (cddr def)))))
           (cadr form))
-     ;; BODY of `flet' form
-     ,@(let ((new-env (merge-env env 'flet (cadr form))))
-         (mapcar (lambda (form)
-                   (expand-form form sym/expansions new-env))
-           (cddr form)))))
+     ,@(expand-body (cddr form) sym/expansions (merge-env env 'flet (cadr form)))))
 
 (defun expand-labels (form sym/expansions &optional env)
   (let ((new-env env))
@@ -252,10 +239,7 @@
                                     (expand-form form sym/expansions% new-env))
                             (cddr def)))))
             (cadr form))
-       ;; BODY of `labels' form
-       ,@(mapcar (lambda (form)
-                   (expand-form form sym/expansions new-env))
-           (cddr form)))))
+       ,@(expand-body (cddr form) sym/expansions new-env))))
 
 
 (defmacro lisp:symbol-macrolet (sym/expansions &body forms &environment env)
@@ -277,5 +261,4 @@
       (get 'symbol-macrolet 'ed::lisp-indent-flet) t)
 
 (provide "symbol-macrolet")
-
 ;;; symbol-macrolet.l ends here
