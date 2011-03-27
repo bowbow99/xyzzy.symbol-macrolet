@@ -3,7 +3,7 @@
 ;;; symbol-macrolet.l --- É}ÉNÉçÇ≈é¿ëïÇµÇΩ Common Lisp ÇÃ symbol-macrolet
 ;;;
 ;;; Author: bowbow99 <bowbow99@gmail.com>
-;;; Version: 0.01.05
+;;; Version: 0.01.06
 ;;; Category: Lisp Libraries
 ;;; Depends: setf-values
 ;;; License: MIT (see COPYING)
@@ -19,7 +19,7 @@
 
 (in-package :symbol-macrolet)
 
-(defconstant *version* "0.01.05")
+(defconstant *version* "0.01.06")
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (export (mapcar (lambda (name) (intern (string name) :lisp))
