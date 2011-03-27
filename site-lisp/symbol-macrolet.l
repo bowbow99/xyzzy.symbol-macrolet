@@ -125,7 +125,7 @@
         (values (caddr form))
         (body (cdddr form)))
     `(multiple-value-bind ,syms ,(expand-form values sym/expansions env)
-       ,@(expand-form body (shadow-symbol sym/expansions syms) env))))
+       ,@(expand-body body (shadow-symbol sym/expansions syms) env))))
 
 (defun expand-let (form sym/expansions &optional env)
   (let ((letted (mapcar (lambda (letting)
