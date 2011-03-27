@@ -260,13 +260,15 @@
 (define-test multiple-value-bind
   (assert-expands '(progn (multiple-value-bind (x y) (values 1 2) (foo bar)))
       (symbol-macrolet ((test (foo bar)))
-        (multiple-value-bind (x y)
-            (values 1 2)
-          test)))
+        (multiple-value-bind (x y) (values 1 2) test)))
   (assert-eql 3
       (symbol-macrolet ((test (+ x y)))
-        (multiple-value-bind (x y)
-            (values 1 2)
-          test))))
+        (multiple-value-bind (x y) (values 1 2) test)))
+  (assert-expands '(progn (multiple-value-bind (x y) (values 1 2) (+ x y) (+ x y)))
+      (symbol-macrolet ((test (+ x y)))
+        (multiple-value-bind (x y) (values 1 2) test test)))
+  (assert-eql 3
+      (symbol-macrolet ((test (+ x y)))
+        (multiple-value-bind (x y) (values 1 2) test test))))
 
 ;;; tests/symbol-macrolet.lt ends here.
