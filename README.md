@@ -1,3 +1,7 @@
+[xyzzy.ansify] に取り込まれました。今後はそっちでメンテされるのでこっちは放置になります。
+
+  [xyzzy.ansify]: http://github.com/bowbow99/xyzzy.ansify
+
 これは何
 =========
 マクロで実装した Common Lisp の symbol-macrolet です。
